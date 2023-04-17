@@ -375,6 +375,7 @@ contract AirDrop is Initializable, OwnableUpgradeable {
         emit ReceivedInterFund(msg.sender, _currentMonth(), msg.value, _remainedToVips);
     }
 
+    event FoundationClaimedVIPs(address account, uint256 amount);
     // 1 年后，基金会可以提取出所有为VIPs准备的空投金
     function foundationClaimVIPs() public onlyFoundation {
         require(
@@ -385,7 +386,11 @@ contract AirDrop is Initializable, OwnableUpgradeable {
 
         payable(_foundation).transfer(_remainedToVips);
 
+        emit FoundationClaimedVIPs(_foundation, _remainedToVips);
+
         _remainedToVips = 0;
+
+
     }
 
     // 当前可提取的月份(3.1 == 3)
