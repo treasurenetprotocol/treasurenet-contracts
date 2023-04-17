@@ -24,12 +24,12 @@ contract AirDrop is Initializable, OwnableUpgradeable {
         Stage2
     }
 
-    /*uint256 private constant STAGE_TIMELOCK = 90 days;*/
+    uint256 private constant STAGE_TIMELOCK = 90 days;
     /* for test 15mins */
-    uint256 private constant STAGE_TIMELOCK = 15 minutes;
-    /*uint256 private constant AirDrop_TIMELOCK = 30 days;*/
+    /*uint256 private constant STAGE_TIMELOCK = 15 minutes;*/
+    uint256 private constant AirDrop_TIMELOCK = 30 days;
     /* for test 10mins */
-    uint256 private constant AirDrop_TIMELOCK = 3 minutes;
+    /*uint256 private constant AirDrop_TIMELOCK = 3 minutes;*/
     uint256 private constant RELEASE_PERIODS = 12;
 
     // 不同阶段授予基金会的UNIT
@@ -83,23 +83,23 @@ contract AirDrop is Initializable, OwnableUpgradeable {
         require(vips.length == ratios.length, "vips.length must equal to ratios.length");
 
         // 基金会3000w，第一阶段直接授予1500w
-        /*_toFoundation[ClaimStage.Stage1] = 15000000 * 1e18;*/
+        _toFoundation[ClaimStage.Stage1] = 15000000 * 1e18;
         /* for test 15*/
-        _toFoundation[ClaimStage.Stage1] = 15 * 1e18;
+        /*_toFoundation[ClaimStage.Stage1] = 15 * 1e18;*/
         // _timeline[ClaimStage.Stage1] = block.timestamp;
         // 第二阶段为第一阶段的3个月后，此时解锁另外的1500w
-        /*_toFoundation[ClaimStage.Stage2] = 15000000 * 1e18;*/
+        _toFoundation[ClaimStage.Stage2] = 15000000 * 1e18;
         /* for test 15 */
-        _toFoundation[ClaimStage.Stage2] = 15 * 1e18;
+        /*_toFoundation[ClaimStage.Stage2] = 15 * 1e18;*/
         // _timeline[ClaimStage.Stage2] = block.timestamp + 90 days;
 
         // 空投开始时间为当前合约初始化时间
         _startAt = block.timestamp;
 
         // 授予VIP客户6000w
-        /*_remainedToVips = 60000000 * 1e18;*/
+        _remainedToVips = 60000000 * 1e18;
         /* for test 60 */
-        _remainedToVips = 60 * 1e18;
+        /*_remainedToVips = 60 * 1e18;*/
         for (uint256 i = 1; i <= RELEASE_PERIODS; i++) {
             _totalPerMonth[i] = _remainedToVips / RELEASE_PERIODS;
         }
@@ -134,9 +134,9 @@ contract AirDrop is Initializable, OwnableUpgradeable {
         require(totalRatios <= 100, "total ratios must <= 100");
         _totalRatios = totalRatios;
 
-        /*PROPOSAL_TIME_LOCK = 48 hours;*/
+        PROPOSAL_TIME_LOCK = 48 hours;
         /* for test 30mins */
-        PROPOSAL_TIME_LOCK = 1 minutes;
+        /*PROPOSAL_TIME_LOCK = 1 minutes;*/
     }
 
     modifier onlyFoundation() {
@@ -179,14 +179,14 @@ contract AirDrop is Initializable, OwnableUpgradeable {
     }
 
     function getVIPInfo(address vip)
-        public
-        view
-        returns (
-            uint256,
-            uint256,
-            uint256,
-            uint256
-        )
+    public
+    view
+    returns (
+        uint256,
+        uint256,
+        uint256,
+        uint256
+    )
     {
         (uint256 totalClaimable, uint256 sinceMonth, uint256 toMonth) = _vipClaimable(vip);
         return (_vipClaimedAmount[vip], totalClaimable, sinceMonth, toMonth);
@@ -197,15 +197,15 @@ contract AirDrop is Initializable, OwnableUpgradeable {
     }
 
     function claimable()
-        public
-        view
-        returns (
-            Role,
-            uint256,
-            ClaimStage,
-            uint256,
-            uint256
-        )
+    public
+    view
+    returns (
+        Role,
+        uint256,
+        ClaimStage,
+        uint256,
+        uint256
+    )
     {
         address sender = msg.sender;
         // Foundation
@@ -237,15 +237,7 @@ contract AirDrop is Initializable, OwnableUpgradeable {
         return (amount, currentStage);
     }
 
-    function _vipClaimable(address vip)
-        public
-        view
-        returns (
-            uint256,
-            uint256,
-            uint256
-        )
-    {
+    function _vipClaimable(address vip) internal view returns (uint256, uint256, uint256) {
         // 判断是否已经提取完
         if (_remainedToVips == 0) {
             return (0, 0, 0);
@@ -333,12 +325,12 @@ contract AirDrop is Initializable, OwnableUpgradeable {
     event VIPClaimed(address vip, uint256 sinceMonth, uint256 toMonth, uint256 amount);
 
     function _vipClaim()
-        internal
-        returns (
-            uint256,
-            uint256,
-            uint256
-        )
+    internal
+    returns (
+        uint256,
+        uint256,
+        uint256
+    )
     {
         // 计算当前可提取额度
         (uint256 amount, uint256 sinceMonth, uint256 toMonth) = _vipClaimable(msg.sender);
@@ -518,7 +510,8 @@ contract AirDrop is Initializable, OwnableUpgradeable {
 
         Proposal storage pro = proposals[_proposalId];
         require(pro.proposer != address(0), "propsoal with this proposalId may not exist");
-        require(pro.excuteTime <= block.timestamp, "executeTime not meet");
+        require(pro.excuteTime > 0 && pro.excuteTime <= block.timestamp, "executeTime not meet");
+        require(pro.sigCount >= threshold(), "proposal not meet threshold");
 
         if (pro.purpose == ProposalPurpose.ChangeVIP) {
             uint256 tempTotal = _totalRatios;
@@ -540,8 +533,9 @@ contract AirDrop is Initializable, OwnableUpgradeable {
             _totalRatios = tempTotal;
         }
 
-        proposalExecuted[_proposalId] == true;
+        proposalExecuted[_proposalId] = true;
 
         emit ProposalExecuted(_proposalId, pro.purpose);
     }
+}
 }
