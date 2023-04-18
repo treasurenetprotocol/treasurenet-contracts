@@ -543,4 +543,3 @@ contract AirDrop is Initializable, OwnableUpgradeable {
         emit ProposalExecuted(_proposalId, pro.purpose);
     }
 }
-}
