@@ -126,7 +126,7 @@ abstract contract Producer is Initializable, IProducer, Share {
     override
     onlyFoundationManager
     {
-        require(producerStatus(_uniqueId) != _newStatus, "status not changed");
+        //require(producerStatus(_uniqueId) != _newStatus, "status not changed");
         require(_newStatus!=ProducerStatus.NotSet,"invalid status");
 
         if (_newStatus == ProducerStatus.Active && _productionData.getTDRequestID(_uniqueId) == bytes32("")) {

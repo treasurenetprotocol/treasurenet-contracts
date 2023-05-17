@@ -11,11 +11,13 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
  * @title DAO 自治组织合约
  * @author bjwswang
  */
-contract DAO is OwnableUpgradeable,GovernorUpgradeable {
+contract DAO is OwnableUpgradeable, GovernorUpgradeable {
     /// DAO合约部署时区块时间
     uint256 private _deployedBlockTime;
     /// 当前区块奖励
     uint256 private _blockReward;
+    /// 当前区块比例
+    uint256 private _blockRatio;
     /// 投票周期
     uint256 private _votingPeriod;
 
@@ -48,18 +50,22 @@ contract DAO is OwnableUpgradeable,GovernorUpgradeable {
     /// @param _name DAO组织名称
     /// @param _minTimeDelay 最小时间延时 (timestamp)
     /// @param __votingPeriod 投票周期 ()
-    function initialize(string memory _name,uint256 _minTimeDelay,uint256 __votingPeriod) public initializer {
+    function initialize(string memory _name, uint256 _minTimeDelay, uint256 __votingPeriod) public initializer {
         __Ownable_init();
-        __Governor_init(_name,_minTimeDelay);
+        __Governor_init(_name, _minTimeDelay);
 
         _deployedBlockTime = block.number;
 
-        _blockReward = 5;
+        _blockReward = 5 * 1e18;
+
+        _blockRatio = 5 * 10000;
+
         // with blocks
         _votingPeriod = __votingPeriod;
     }
 
     receive() external payable {}
+
     fallback() external payable {}
 
     // Governor implementation
@@ -73,11 +79,11 @@ contract DAO is OwnableUpgradeable,GovernorUpgradeable {
     /// @param account 账户地址
     /// @return bool 是否投票
     function hasVoted(uint256 proposalId, address account)
-        public
-        view
-        virtual
-        override
-        returns (bool)
+    public
+    view
+    virtual
+    override
+    returns (bool)
     {
         return _proposalVotes[proposalId].hasVoted[account];
     }
@@ -88,14 +94,14 @@ contract DAO is OwnableUpgradeable,GovernorUpgradeable {
     /// @return uint256 投同意票的数量
     /// @return uint256 投弃权票的数量
     function proposalVotes(uint256 proposalId)
-        public
-        view
-        virtual
-        returns (
-            uint256,
-            uint256,
-            uint256
-        )
+    public
+    view
+    virtual
+    returns (
+        uint256,
+        uint256,
+        uint256
+    )
     {
         ProposalVote storage proposalvote = _proposalVotes[proposalId];
         return (proposalvote.againstVotes, proposalvote.forVotes, proposalvote.abstainVotes);
@@ -115,7 +121,7 @@ contract DAO is OwnableUpgradeable,GovernorUpgradeable {
 
     /// @dev 更新投票周期(通过DAO提议完成)
     /// @param newVotingPeriod 新的投票周期
-    function updateVotingPeriod(uint256 newVotingPeriod) public virtual  onlyDAO() {
+    function updateVotingPeriod(uint256 newVotingPeriod) public virtual onlyDAO() {
         _votingPeriod = newVotingPeriod;
     }
 
@@ -131,24 +137,39 @@ contract DAO is OwnableUpgradeable,GovernorUpgradeable {
         _blockReward = newBlockReward;
     }
 
+    /// @dev 设置区块比例
+    /// @param newBlockRatio 新的区块比例
+    function setBlockRatio(uint256 newBlockRatio) public onlyDAO() {
+        _blockRatio = newBlockRatio;
+    }
+
     /// @dev 查询区块奖励
     /// @return uint 区块奖励
-    function blockReward() public view returns(uint) {
+    function blockReward() public view returns (uint) {
         return _blockReward;
+    }
+
+    /// @dev 查询区块比例
+    /// @return uint 区块比例
+    function blockRatio() public view returns (uint) {
+        return _blockRatio;
     }
 
     /// @dev 提议生效的法定票数
     /// @return uint256 返回值
     function quorum(uint256 blockNumber) public view override returns (uint256) {
-        return ((blockNumber - _deployedBlockTime) * _blockReward * 5) / 100;
+        if (blockNumber <= _deployedBlockTime) {
+            return 0;
+        }
+        return ((blockNumber - _deployedBlockTime) * _blockReward * _blockRatio) / 100 / 10000; // _blockRatio 需要除以10000 以提供更高精度
     }
 
     function _quorumReached(uint256 proposalId) internal view virtual override returns (bool) {
         ProposalVote storage proposalvote = _proposalVotes[proposalId];
 
         return
-            quorum(proposalSnapshot(proposalId)) <=
-            proposalvote.forVotes + proposalvote.abstainVotes;
+        quorum(proposalSnapshot(proposalId)) <=
+        proposalvote.forVotes + proposalvote.abstainVotes;
     }
 
     function _voteSucceeded(uint256 proposalId) internal view virtual override returns (bool) {

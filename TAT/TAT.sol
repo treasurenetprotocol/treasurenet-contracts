@@ -99,23 +99,24 @@ Stakeable
         _unpause();
     }
 
+
     /// @dev 质押TAT
     ///  - Event
     ///        event Stake(address from,uint256 amount);
     /// @param _amount 质押的TAT数量
-    function stake(uint256 _amount) public override {
-        require(balanceOf(_msgSender()) >= _amount, "stake more than you own");
-        _stake(_amount);
-        _burn(_msgSender(), _amount);
+    function stake(address account, uint256 _amount) public override {
+        require(balanceOf(account) >= _amount, "stake more than you own");
+        _stake(account, _amount);
+        _burn(account, _amount);
     }
 
     /// @dev 取回质押的TAT
     /// - Event
     ///    event Withdraw(address from,uint256 amount);
     /// @param _amount 取回的质押TAT数量
-    function withdraw(uint256 _amount) public override {
-        require(stakeOf(_msgSender()) >= _amount, "withdraw more than you staked");
-        _withdraw(_amount);
-        _mint(_msgSender(), _amount);
+    function withdraw(address account, uint256 _amount) public override {
+        require(stakeOf(account) >= _amount, "withdraw more than you staked");
+        _withdraw(account, _amount);
+        _mint(account, _amount);
     }
 }

@@ -179,7 +179,7 @@ abstract contract IGovernorUpgradeable is Initializable, IERC165Upgradeable {
         address[] memory targets,
         bytes[] memory calldatas,
         string memory description
-    ) public virtual returns (uint256 proposalId);
+    ) public payable virtual returns (uint256 proposalId);
 
 
     function queue(

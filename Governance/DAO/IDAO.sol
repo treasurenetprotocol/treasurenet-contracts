@@ -40,7 +40,9 @@ interface IDAO {
     function state(uint256 proposalId) external view  returns (ProposalState);
 
     function setBlockReward(uint newBlockReward) external;
+    function setBlockRatio(uint newBlockRatio) external;
     function blockReward() external view returns(uint);
+    function blockRatio() external view returns(uint);
 
     function updateDelay(uint256 newDelay) external;
     function votingDelay() external view returns (uint256);

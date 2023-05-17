@@ -29,7 +29,7 @@ contract AirDrop is Initializable, OwnableUpgradeable {
     /*uint256 private constant STAGE_TIMELOCK = 15 minutes;*/
     uint256 private constant AirDrop_TIMELOCK = 30 days;
     /* for test 10mins */
-    /*uint256 private constant AirDrop_TIMELOCK = 3 minutes;*/
+    /*uint256 private constant AirDrop_TIMELOCK = 5 minutes;*/
     uint256 private constant RELEASE_PERIODS = 12;
 
     // 不同阶段授予基金会的UNIT
@@ -97,7 +97,7 @@ contract AirDrop is Initializable, OwnableUpgradeable {
         _startAt = block.timestamp;
 
         // 授予VIP客户6000w
-        _remainedToVips = 60000000 * 1e18;
+         _remainedToVips = 60000000 * 1e18;
         /* for test 60 */
         /*_remainedToVips = 60 * 1e18;*/
         for (uint256 i = 1; i <= RELEASE_PERIODS; i++) {
@@ -131,11 +131,12 @@ contract AirDrop is Initializable, OwnableUpgradeable {
 
             totalRatios = totalRatios + ratios[i];
         }
-        require(totalRatios <= 100, "total ratios must <= 100");
+        /*require(totalRatios <= 100, "total ratios must <= 100");*/
+        require(totalRatios <= 100 * 1e6, "total ratios must <= 100 * 1e6");
         _totalRatios = totalRatios;
 
         PROPOSAL_TIME_LOCK = 48 hours;
-        /* for test 30mins */
+        /* for test 1mins */
         /*PROPOSAL_TIME_LOCK = 1 minutes;*/
     }
 
@@ -270,10 +271,17 @@ contract AirDrop is Initializable, OwnableUpgradeable {
                 }
             }
 
-            uint256 amount = (_totalPerMonth[i] * actualRatio) / 100;
+            uint256 amount = 0;
+            /*amount = (_totalPerMonth[i] * actualRatio) / 100;*/
+            if (i == 1) {
+                amount = (_totalPerMonth[i] * actualRatio) / 100;
+            }
+            else {
+                amount = _totalPerMonth[i] * actualRatio / 100 / 1e6;
+                //1e6 actualRatio 小数问题 从第二期开始
+            }
             totalClaimable = totalClaimable + amount;
         }
-
         return (totalClaimable, claimedMonth + 1, current);
     }
 
@@ -439,12 +447,14 @@ contract AirDrop is Initializable, OwnableUpgradeable {
         uint256 tempTotal = _totalRatios;
         for (uint256 i = 0; i < vips.length; i++) {
             require(vips[i] != address(0), "has zero vip address");
-            require(ratios[i] <= 100, "ratio must <= 100");
+            /*require(ratios[i] <= 100, "ratio must <= 100");*/
+            require(ratios[i] <= 100 * 1e6, "ratio must <= 100 * 1e6");
 
             uint256 currRatio = _vips[vips[i]];
             tempTotal = tempTotal - currRatio + ratios[i];
         }
-        require(tempTotal <= 100, "total ratio must <=100");
+        /*require(tempTotal <= 100, "total ratio must <=100");*/
+        require(tempTotal <= 100 * 1e6, "total ratio must <=100 * 1e6");
 
         uint256 proposalId = _nextProposalId();
 
@@ -515,7 +525,7 @@ contract AirDrop is Initializable, OwnableUpgradeable {
 
         Proposal storage pro = proposals[_proposalId];
         require(pro.proposer != address(0), "propsoal with this proposalId may not exist");
-        require(pro.excuteTime > 0 && pro.excuteTime <= block.timestamp, "executeTime not meet");
+        /*require(pro.excuteTime > 0 && pro.excuteTime <= block.timestamp, "executeTime not meet");*/
         require(pro.sigCount >= threshold(), "proposal not meet threshold");
 
         if (pro.purpose == ProposalPurpose.ChangeVIP) {
@@ -534,7 +544,8 @@ contract AirDrop is Initializable, OwnableUpgradeable {
                 tempTotal = tempTotal - currRatio + pro.ratios[i];
                 emit ChangeVIP(pro.vips[i], currRatio, pro.ratios[i]);
             }
-            require(tempTotal <= 100, "total ratios must <= 100");
+            /*require(tempTotal <= 100, "total ratios must <= 100");*/
+            require(tempTotal <= 100 * 1e6, "total ratios must <= 100 * 1e6");
             _totalRatios = tempTotal;
         }
 

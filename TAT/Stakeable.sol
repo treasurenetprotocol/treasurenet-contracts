@@ -19,7 +19,7 @@ abstract contract Stakeable is IStake {
     }
 
     function _addStakeholder(address _stakeholder) internal {
-        (bool _is, ) = _isStakeholder(_stakeholder);
+        (bool _is,) = _isStakeholder(_stakeholder);
         if (!_is) _stakeHolders.push(_stakeholder);
     }
 
@@ -48,21 +48,24 @@ abstract contract Stakeable is IStake {
     }
 
     // Logics to bid and withdraw
-    event Stake(address from,uint256 amount);
-    function _stake(uint256 amount) internal {
-        if (_stakes[msg.sender] == 0) _addStakeholder(msg.sender);
-        _stakes[msg.sender] = _stakes[msg.sender].add(amount);
-        emit Stake(msg.sender, amount);
+    event Stake(address from, uint256 amount);
+
+    function _stake(address account, uint256 amount) internal {
+        if (_stakes[account] == 0) _addStakeholder(account);
+        _stakes[account] = _stakes[account].add(amount);
+        emit Stake(account, amount);
     }
 
-    event Withdraw(address from,uint256 amount);
-    function _withdraw(uint256 amount) internal {
-        require(_stakes[msg.sender] > amount, "withdrawed tokens bigger than staked");
-        _stakes[msg.sender] = _stakes[msg.sender].sub(amount);
-        if (_stakes[msg.sender] == 0) _removeStakeholder(msg.sender);
-        emit Withdraw(msg.sender, amount);
+    event Withdraw(address from, uint256 amount);
+
+    function _withdraw(address account, uint256 amount) internal {
+        require(_stakes[account] > amount, "withdrawed tokens bigger than staked");
+        _stakes[account] = _stakes[account].sub(amount);
+        if (_stakes[account] == 0) _removeStakeholder(account);
+        emit Withdraw(account, amount);
     }
 
-    function stake(uint256 _amount) public override virtual;
-    function withdraw(uint256 _amount) public override virtual;
+    function stake(address account, uint256 _amount) public override virtual;
+
+    function withdraw(address account, uint256 _amount) public override virtual;
 }

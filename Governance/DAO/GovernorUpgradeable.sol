@@ -246,20 +246,48 @@ abstract contract GovernorUpgradeable is Initializable, ContextUpgradeable, ERC1
         address[] memory targets,
         bytes[] memory calldatas,
         string memory description
-    ) public virtual override returns (uint256) {
+    ) public payable virtual override returns (uint256) {
         uint256 proposalId = hashProposal(targets, calldatas, keccak256(bytes(description)));
 
         require(targets.length == calldatas.length, "Governor: invalid proposal length");
         //require(targets.length > 0, "Governor: empty proposal");  //有手动执行的版本
 
+        if (targets.length == 0) {//手动执行的版本
+            require(msg.value >= 1 * 1e18, "Minimum 1UNIT");
+            //要收费
+        }
+
         ProposalCore storage proposal = _proposals[proposalId];
         require(proposal.voteStart.isUnset(), "Governor: proposal already exists");
 
-        uint64 snapshot = block.number.toUint64() + votingDelay().toUint64();
+        uint64 snapshot = 0;
+        if (targets.length == 0) {//手动执行的版本
+            snapshot = block.number.toUint64() - 1;
+            //手动执行的版本不存在投票延迟
+        }
+        else {
+            snapshot = block.number.toUint64() + votingDelay().toUint64();
+        }
         uint64 deadline = snapshot + votingPeriod().toUint64();
 
         proposal.voteStart.setDeadline(snapshot);
         proposal.voteEnd.setDeadline(deadline);
+
+        //payable(address(this)).transfer(msg.value);  //收费
+
+        if (targets.length == 0) {//手动执行的版本 此处附加一次投票动作
+
+            address voter = _msgSender();
+
+            Vote memory vote;
+            vote.Voter = voter;
+            vote.amount = msg.value;
+            vote.withdrawed = false;
+
+            _votes[proposalId][voter] = vote;
+
+            _castVote(proposalId, voter, 0, msg.value);
+        }
 
         emit ProposalCreated(
             proposalId,
