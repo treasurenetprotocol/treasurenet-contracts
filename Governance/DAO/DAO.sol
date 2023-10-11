@@ -56,7 +56,7 @@ contract DAO is OwnableUpgradeable, GovernorUpgradeable {
 
         _deployedBlockTime = block.number;
 
-        _blockReward = 5 * 1e18;
+        _blockReward = 10 * 1e18;
 
         _blockRatio = 5 * 10000;
 
@@ -161,7 +161,8 @@ contract DAO is OwnableUpgradeable, GovernorUpgradeable {
         if (blockNumber <= _deployedBlockTime) {
             return 0;
         }
-        return ((blockNumber - _deployedBlockTime) * _blockReward * _blockRatio) / 100 / 10000; // _blockRatio 需要除以10000 以提供更高精度
+        return ((blockNumber - _deployedBlockTime) * _blockReward * _blockRatio) / 100 / 10000;
+        // _blockRatio 需要除以10000 以提供更高精度
     }
 
     function _quorumReached(uint256 proposalId) internal view virtual override returns (bool) {

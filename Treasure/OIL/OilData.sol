@@ -44,7 +44,7 @@ contract OilData is ProductionData {
         } else {
             // ProduceData memory data;
             _produceData.account = thisProducer.owner;
-            _produceData.amount = _produceData.amount;
+            _produceData.amount = _produceData.amount;  //TODO: 两边一样
             _trustedProduceData[_produceData.month][_uniqueId] = _produceData;
         }
 
@@ -65,7 +65,9 @@ contract OilData is ProductionData {
         IProducer.ProducerCore memory thisProducer = _getProducer(_uniqueId);
         require(_msgSender() == thisProducer.owner, "must be the producer");
         require(_produceData.month > 0, "zero production month");
+        require(_produceData.month < 10000, "month format is not YYMM");
         require(_produceData.date > 0, "zero production date");
+        require(_produceData.date < 1000000, "date format is not YYMMDD");
         require(_produceData.amount > 0, "zero production amount");
 
         uint256 discount = _parameterInfo.getPriceDiscountConfig(
@@ -74,7 +76,8 @@ contract OilData is ProductionData {
         );
 
         // 市场价值
-        uint256 price = (_produceData.amount * _getAssetValue(_produceData.date) * discount) * 1e18 / 10000 / 100;
+        /* 小数设计 amount 入参放大10000 单价入参放大10000 折扣放大10000*/
+        uint256 price = (_produceData.amount * _getAssetValue(_produceData.date) * discount) * 1e18 / 10000 / 10000 / 10000;
 
         bool _exist = false;
         for (uint256 i = 0; i < _uploadedProduceData[_produceData.month].length; i++) {

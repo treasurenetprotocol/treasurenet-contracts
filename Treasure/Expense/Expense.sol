@@ -106,9 +106,9 @@ abstract contract Expense is Initializable{
 
         if (depositor.margin >= penaltyCost) {
             depositor.margin -= penaltyCost;
-            payable(address(this)).transfer(penaltyCost);
+            payable(address(this)).transfer(penaltyCost);  //TODO: 转给自己？
         } else {
-            payable(address(this)).transfer(depositor.margin);
+            payable(address(this)).transfer(depositor.margin);  //TODO: 转给自己？
             depositor.margin = penaltyCost - depositor.margin;
             depositor.status = Status.Abnormal;
             depositor.debtor = address(this);

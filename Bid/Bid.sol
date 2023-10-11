@@ -21,7 +21,7 @@ contract Bid is Initializable, OwnableUpgradeable {
     mapping(address => uint256) bidAmount;
     mapping(address => uint256) bidTime;
 
-    /* 最少1TAT */
+    /* At least 1 TAT */
     uint256 constant TAT_THRESHOLD = 1 * 1e18;
     uint256 _totalBid;
 

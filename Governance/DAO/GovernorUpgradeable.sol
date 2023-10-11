@@ -155,6 +155,9 @@ abstract contract GovernorUpgradeable is Initializable, ContextUpgradeable, ERC1
 
         if (proposal.queued) {
             return ProposalState.Queued;
+            if(_timestamps[proposalId]>0 && _timestamps[proposalId] >= block.timestamp){
+                return ProposalState.Expired;
+            }
         }
 
         if (proposal.executed) {
@@ -218,8 +221,8 @@ abstract contract GovernorUpgradeable is Initializable, ContextUpgradeable, ERC1
      */
     function _quorumReached(uint256 proposalId) internal view virtual returns (bool);
 
-    /**
-     * @dev Is the proposal successful or not.
+        /**
+         * @dev Is the proposal successful or not.
      */
     function _voteSucceeded(uint256 proposalId) internal view virtual returns (bool);
 
@@ -286,7 +289,7 @@ abstract contract GovernorUpgradeable is Initializable, ContextUpgradeable, ERC1
 
             _votes[proposalId][voter] = vote;
 
-            _castVote(proposalId, voter, 0, msg.value);
+            _castVote(proposalId, voter, 1, msg.value);
         }
 
         emit ProposalCreated(
@@ -298,6 +301,7 @@ abstract contract GovernorUpgradeable is Initializable, ContextUpgradeable, ERC1
             deadline,
             description
         );
+
 
         return proposalId;
     }
@@ -333,6 +337,7 @@ abstract contract GovernorUpgradeable is Initializable, ContextUpgradeable, ERC1
         //uint256 proposalId = hashProposal(targets, calldatas, descriptionHash);
         ProposalState status = state(proposalId);
         require(status == ProposalState.Queued, "Governor: proposal not Queued yet");
+        require(_timestamps[proposalId] != _DONE_TIMESTAMP && _timestamps[proposalId] < block.timestamp, "min deplay not passed yet");
         _proposals[proposalId].queued = false;
         _proposals[proposalId].manualExecuted = true;
         _timestamps[proposalId] = _DONE_TIMESTAMP;
