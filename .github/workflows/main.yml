@@ -1,0 +1,47 @@
+name: CI workflow for TreasureNet contracts repo
+
+on:
+  pull_request:
+    branches: [develop, main]
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+  push:
+    branches: [develop, main]
+
+jobs:
+  CI:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print timestamp
+        run: echo "Execution time is $(TZ='America/Los_Angeles' date +%Y-%m-%d %H:%M:%S)"
+
+      - uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      # Cache node modules to speed up builds
+      - name: Cache Node.js modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node-
+
+      # Install Truffle and Ganache CLI
+      - name: Install Truffle
+        run: npm install -g truffle
+  
+      - name: Install Dependencies
+        run: npm install
+  
+      - name: Run Ganache CLI
+        run: npx ganache-cli --deterministic &
+  
+      # Compile and test the smart contracts
+      - name: Compile Contracts
+        run: truffle compile
+  
+      - name: Run Tests
+        run: truffle test
