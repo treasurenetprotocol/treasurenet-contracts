@@ -8,15 +8,15 @@ contract SampleDAO is Initializable {
 
     uint256 private _blockReward;
 
-    event BlockRewardReset(uint256 oldB,uint256 newB);
+    event BlockRewardReset(uint256 oldB, uint256 newB);
 
-    function initialize(address dao_) initializer public {
-        require(dao_!=address(0),"empty address");
+    function initialize(address dao_) public initializer {
+        require(dao_ != address(0), "empty address");
         _dao = dao_;
     }
 
     modifier onlyDAO() {
-        require(msg.sender == _dao,"only dao");
+        require(msg.sender == _dao, "only dao");
         _;
     }
 
@@ -31,6 +31,7 @@ contract SampleDAO is Initializable {
     }
 
     event PayEth(uint256);
+
     function receiveEth() public payable {
         emit PayEth(msg.value);
     }

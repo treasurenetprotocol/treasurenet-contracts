@@ -12,11 +12,9 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
  * _Available since v4.3._
  */
 abstract contract IGovernorUpgradeable is Initializable, IERC165Upgradeable {
-    function __IGovernor_init() internal onlyInitializing {
-    }
+    function __IGovernor_init() internal onlyInitializing {}
 
-    function __IGovernor_init_unchained() internal onlyInitializing {
-    }
+    function __IGovernor_init_unchained() internal onlyInitializing {}
 
     enum ProposalState {
         Pending,
@@ -64,7 +62,6 @@ abstract contract IGovernorUpgradeable is Initializable, IERC165Upgradeable {
     event VoteCast(address indexed voter, uint256 proposalId, uint8 support, uint256 weight);
 
     event Withdrawed(uint256 proposalId, address voter, uint256 amount);
-
 
     /**
      * @notice module:core
@@ -134,7 +131,6 @@ abstract contract IGovernorUpgradeable is Initializable, IERC165Upgradeable {
      */
     function proposalDeadline(uint256 proposalId) public view virtual returns (uint256);
 
-
     function updateDelay(uint256 newDelay) public virtual;
 
     /**
@@ -162,7 +158,6 @@ abstract contract IGovernorUpgradeable is Initializable, IERC165Upgradeable {
      */
     function quorum(uint256 blockNumber) public view virtual returns (uint256);
 
-
     /**
      * @notice module:voting
      * @dev Returns weither `account` has cast a vote on `proposalId`.
@@ -181,15 +176,13 @@ abstract contract IGovernorUpgradeable is Initializable, IERC165Upgradeable {
         string memory description
     ) public payable virtual returns (uint256 proposalId);
 
-
     function queue(
         address[] memory targets,
         bytes[] memory calldatas,
-        bytes32 descriptionHash) public virtual returns (uint256);
-
-    function manualExecuted(
-        uint256 proposalId
+        bytes32 descriptionHash
     ) public virtual returns (uint256);
+
+    function manualExecuted(uint256 proposalId) public virtual returns (uint256);
 
     /**
      * @dev Execute a successful proposal. This requires the quorum to be reached, the vote to be successful, and the
@@ -210,8 +203,11 @@ abstract contract IGovernorUpgradeable is Initializable, IERC165Upgradeable {
      *
      * Emits a {VoteCast} event.
      */
-    function castVote(uint256 proposalId, uint8 support) public payable virtual returns (uint256 balance);
-
+    function castVote(uint256 proposalId, uint8 support)
+        public
+        payable
+        virtual
+        returns (uint256 balance);
 
     function withdraw(uint256 proposalId) public payable virtual returns (uint256);
 

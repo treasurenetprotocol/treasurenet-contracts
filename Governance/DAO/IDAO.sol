@@ -17,35 +17,37 @@ interface IDAO {
         address[] memory targets,
         bytes[] memory calldatas,
         string memory description
-    ) external  returns (uint256 proposalId);
+    ) external returns (uint256 proposalId);
 
-    function castVote(uint256 proposalId, uint8 support) external payable  returns (uint256 balance);
+    function castVote(uint256 proposalId, uint8 support) external payable returns (uint256 balance);
 
-    function withdraw(uint256 proposalId) external payable  returns (uint256);
+    function withdraw(uint256 proposalId) external payable returns (uint256);
 
     function queue(
         address[] memory targets,
         bytes[] memory calldatas,
-        bytes32 descriptionHash) external  returns(uint256);
+        bytes32 descriptionHash
+    ) external returns (uint256);
 
     function execute(
         address[] memory targets,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) external payable  returns (uint256 proposalId);
-
+    ) external payable returns (uint256 proposalId);
 
     function hasVoted(uint256 proposalId, address account) external view returns (bool);
 
-    function state(uint256 proposalId) external view  returns (ProposalState);
+    function state(uint256 proposalId) external view returns (ProposalState);
 
-    function setBlockReward(uint newBlockReward) external;
-    function setBlockRatio(uint newBlockRatio) external;
-    function blockReward() external view returns(uint);
-    function blockRatio() external view returns(uint);
+    function setBlockReward(uint256 newBlockReward) external;
+
+    function setBlockRatio(uint256 newBlockRatio) external;
+
+    function blockReward() external view returns (uint256);
+
+    function blockRatio() external view returns (uint256);
 
     function updateDelay(uint256 newDelay) external;
+
     function votingDelay() external view returns (uint256);
-
-
 }

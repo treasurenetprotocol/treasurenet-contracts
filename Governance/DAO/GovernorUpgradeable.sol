@@ -20,14 +20,20 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
  * @dev GoverorUpgradeable实现了DAO合约的核心功能
  * @author bjwswang
  */
-abstract contract GovernorUpgradeable is Initializable, ContextUpgradeable, ERC165Upgradeable, EIP712Upgradeable, IGovernorUpgradeable {
+abstract contract GovernorUpgradeable is
+    Initializable,
+    ContextUpgradeable,
+    ERC165Upgradeable,
+    EIP712Upgradeable,
+    IGovernorUpgradeable
+{
     using DoubleEndedQueueUpgradeable for DoubleEndedQueueUpgradeable.Bytes32Deque;
     using SafeCastUpgradeable for uint256;
     using TimersUpgradeable for TimersUpgradeable.BlockNumber;
 
     bytes32 public constant BALLOT_TYPEHASH = keccak256("Ballot(uint256 proposalId,uint8 support)");
     bytes32 public constant EXTENDED_BALLOT_TYPEHASH =
-    keccak256("ExtendedBallot(uint256 proposalId,uint8 support,string reason,bytes params)");
+        keccak256("ExtendedBallot(uint256 proposalId,uint8 support,string reason,bytes params)");
 
     struct ProposalCore {
         TimersUpgradeable.BlockNumber voteStart;
@@ -55,7 +61,6 @@ abstract contract GovernorUpgradeable is Initializable, ContextUpgradeable, ERC1
     }
 
     mapping(uint256 => mapping(address => Vote)) private _votes;
-
 
     // This queue keeps track of the governor operating on itself. Calls to functions protected by the
     // {onlyGovernance} modifier needs to be whitelisted in this queue. Whitelisting is set in {_beforeExecute},
@@ -99,7 +104,13 @@ abstract contract GovernorUpgradeable is Initializable, ContextUpgradeable, ERC1
     /**
      * @dev See {IERC165-supportsInterface}.
      */
-    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165Upgradeable, ERC165Upgradeable) returns (bool) {
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(IERC165Upgradeable, ERC165Upgradeable)
+        returns (bool)
+    {
         // In addition to the current interfaceId, also support previous version of the interfaceId that did not
         // include the castVoteWithReasonAndParams() function as standard
         return super.supportsInterface(interfaceId);
@@ -118,7 +129,6 @@ abstract contract GovernorUpgradeable is Initializable, ContextUpgradeable, ERC1
     function version() public view virtual override returns (string memory) {
         return "1";
     }
-
 
     function _updateDelay(uint256 newDelay) public virtual onlyGovernance {
         _minDelay = newDelay;
@@ -155,7 +165,7 @@ abstract contract GovernorUpgradeable is Initializable, ContextUpgradeable, ERC1
 
         if (proposal.queued) {
             return ProposalState.Queued;
-            if(_timestamps[proposalId]>0 && _timestamps[proposalId] >= block.timestamp){
+            if (_timestamps[proposalId] > 0 && _timestamps[proposalId] >= block.timestamp) {
                 return ProposalState.Expired;
             }
         }
@@ -221,11 +231,10 @@ abstract contract GovernorUpgradeable is Initializable, ContextUpgradeable, ERC1
      */
     function _quorumReached(uint256 proposalId) internal view virtual returns (bool);
 
-        /**
-         * @dev Is the proposal successful or not.
+    /**
+     * @dev Is the proposal successful or not.
      */
     function _voteSucceeded(uint256 proposalId) internal view virtual returns (bool);
-
 
     /**
      * @dev Register a vote for `proposalId` by `account` with a given `support`, voting `weight` and voting `params`.
@@ -238,7 +247,6 @@ abstract contract GovernorUpgradeable is Initializable, ContextUpgradeable, ERC1
         uint8 support,
         uint256 weight
     ) internal virtual;
-
 
     /// @dev 发起一个新的提议
     /// @param targets 目标合约地址
@@ -255,7 +263,8 @@ abstract contract GovernorUpgradeable is Initializable, ContextUpgradeable, ERC1
         require(targets.length == calldatas.length, "Governor: invalid proposal length");
         //require(targets.length > 0, "Governor: empty proposal");  //有手动执行的版本
 
-        if (targets.length == 0) {//手动执行的版本
+        if (targets.length == 0) {
+            //手动执行的版本
             require(msg.value >= 1 * 1e18, "Minimum 1UNIT");
             //要收费
         }
@@ -264,11 +273,11 @@ abstract contract GovernorUpgradeable is Initializable, ContextUpgradeable, ERC1
         require(proposal.voteStart.isUnset(), "Governor: proposal already exists");
 
         uint64 snapshot = 0;
-        if (targets.length == 0) {//手动执行的版本
+        if (targets.length == 0) {
+            //手动执行的版本
             snapshot = block.number.toUint64() - 1;
             //手动执行的版本不存在投票延迟
-        }
-        else {
+        } else {
             snapshot = block.number.toUint64() + votingDelay().toUint64();
         }
         uint64 deadline = snapshot + votingPeriod().toUint64();
@@ -278,7 +287,8 @@ abstract contract GovernorUpgradeable is Initializable, ContextUpgradeable, ERC1
 
         //payable(address(this)).transfer(msg.value);  //收费
 
-        if (targets.length == 0) {//手动执行的版本 此处附加一次投票动作
+        if (targets.length == 0) {
+            //手动执行的版本 此处附加一次投票动作
 
             address voter = _msgSender();
 
@@ -302,10 +312,8 @@ abstract contract GovernorUpgradeable is Initializable, ContextUpgradeable, ERC1
             description
         );
 
-
         return proposalId;
     }
-
 
     /// @dev 将投票成功的proposal(Succeeded)转移到待执行队列
     /// @param targets 目标合约地址
@@ -315,8 +323,8 @@ abstract contract GovernorUpgradeable is Initializable, ContextUpgradeable, ERC1
     function queue(
         address[] memory targets,
         bytes[] memory calldatas,
-        bytes32 descriptionHash) public virtual override returns (uint256) {
-
+        bytes32 descriptionHash
+    ) public virtual override returns (uint256) {
         uint256 proposalId = hashProposal(targets, calldatas, descriptionHash);
         ProposalState status = state(proposalId);
 
@@ -331,20 +339,20 @@ abstract contract GovernorUpgradeable is Initializable, ContextUpgradeable, ERC1
     }
 
     /* 非执行类 只需要手动处理 标识完成执行即可 */
-    function manualExecuted(
-        uint256 proposalId
-    ) public virtual override returns (uint256){
+    function manualExecuted(uint256 proposalId) public virtual override returns (uint256) {
         //uint256 proposalId = hashProposal(targets, calldatas, descriptionHash);
         ProposalState status = state(proposalId);
         require(status == ProposalState.Queued, "Governor: proposal not Queued yet");
-        require(_timestamps[proposalId] != _DONE_TIMESTAMP && _timestamps[proposalId] < block.timestamp, "min deplay not passed yet");
+        require(
+            _timestamps[proposalId] != _DONE_TIMESTAMP && _timestamps[proposalId] < block.timestamp,
+            "min deplay not passed yet"
+        );
         _proposals[proposalId].queued = false;
         _proposals[proposalId].manualExecuted = true;
         _timestamps[proposalId] = _DONE_TIMESTAMP;
         emit ProposalManualExecuted(proposalId);
         return proposalId;
     }
-
 
     /// @dev 执行已经在待执行队列的proposal(Queued)
     /// @param targets 目标合约地址
@@ -362,14 +370,15 @@ abstract contract GovernorUpgradeable is Initializable, ContextUpgradeable, ERC1
 
         require(status == ProposalState.Queued, "Governor: proposal not Queued yet");
 
-        require(_timestamps[proposalId] != _DONE_TIMESTAMP && _timestamps[proposalId] < block.timestamp, "min deplay not passed yet");
-
+        require(
+            _timestamps[proposalId] != _DONE_TIMESTAMP && _timestamps[proposalId] < block.timestamp,
+            "min deplay not passed yet"
+        );
 
         _proposals[proposalId].queued = false;
         _proposals[proposalId].executed = true;
 
         _timestamps[proposalId] = _DONE_TIMESTAMP;
-
 
         emit ProposalExecuted(proposalId);
 
@@ -404,8 +413,7 @@ abstract contract GovernorUpgradeable is Initializable, ContextUpgradeable, ERC1
         address[] memory targets,
         bytes[] memory calldatas,
         bytes32 /*descriptionHash*/
-    ) internal virtual {
-    }
+    ) internal virtual {}
 
     /**
      * @dev Hook after execution is triggered.
@@ -432,7 +440,9 @@ abstract contract GovernorUpgradeable is Initializable, ContextUpgradeable, ERC1
         ProposalState status = state(proposalId);
 
         require(
-            status != ProposalState.Canceled && status != ProposalState.Expired && status != ProposalState.Executed,
+            status != ProposalState.Canceled &&
+                status != ProposalState.Expired &&
+                status != ProposalState.Executed,
             "Governor: proposal not active"
         );
         _proposals[proposalId].canceled = true;
@@ -451,7 +461,13 @@ abstract contract GovernorUpgradeable is Initializable, ContextUpgradeable, ERC1
     ///         Abstain  // 弃权
     ///     }
     /// @return uint256 返回weight
-    function castVote(uint256 proposalId, uint8 support) public payable virtual override returns (uint256) {
+    function castVote(uint256 proposalId, uint8 support)
+        public
+        payable
+        virtual
+        override
+        returns (uint256)
+    {
         require(msg.value >= 1 * 1e18, "Minimum 1UNIT");
         address voter = _msgSender();
 
@@ -464,7 +480,6 @@ abstract contract GovernorUpgradeable is Initializable, ContextUpgradeable, ERC1
 
         return _castVote(proposalId, voter, support, msg.value);
     }
-
 
     /**
      * @dev Internal vote casting mechanism: Check that the vote is pending, that it has not been cast yet, retrieve
@@ -509,12 +524,18 @@ abstract contract GovernorUpgradeable is Initializable, ContextUpgradeable, ERC1
         return address(this);
     }
 
-
     /// @dev 提议结束后，投票者可提回其token
     /// @param proposalId 提议id
     /// @return uint256 返回得token数量
     function withdraw(uint256 proposalId) public payable virtual override returns (uint256) {
-        require(state(proposalId) == ProposalState.Canceled || state(proposalId) == ProposalState.Defeated || state(proposalId) == ProposalState.Expired || state(proposalId) == ProposalState.Executed || state(proposalId) == ProposalState.ManualExecuted, "can not withdraw due to current proposal state");
+        require(
+            state(proposalId) == ProposalState.Canceled ||
+                state(proposalId) == ProposalState.Defeated ||
+                state(proposalId) == ProposalState.Expired ||
+                state(proposalId) == ProposalState.Executed ||
+                state(proposalId) == ProposalState.ManualExecuted,
+            "can not withdraw due to current proposal state"
+        );
 
         Vote storage vote = _votes[proposalId][_msgSender()];
         require(vote.withdrawed == false, "already withdrawed before");
@@ -526,7 +547,6 @@ abstract contract GovernorUpgradeable is Initializable, ContextUpgradeable, ERC1
 
         return vote.amount;
     }
-
 
     /**
      * @dev This empty reserved space is put in place to allow future versions to add new

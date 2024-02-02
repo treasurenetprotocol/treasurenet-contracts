@@ -5,7 +5,6 @@ import "./GovernorUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-
 /**
  * @dev DAO 自治组织合约实现
  * @title DAO 自治组织合约
@@ -50,7 +49,11 @@ contract DAO is OwnableUpgradeable, GovernorUpgradeable {
     /// @param _name DAO组织名称
     /// @param _minTimeDelay 最小时间延时 (timestamp)
     /// @param __votingPeriod 投票周期 ()
-    function initialize(string memory _name, uint256 _minTimeDelay, uint256 __votingPeriod) public initializer {
+    function initialize(
+        string memory _name,
+        uint256 _minTimeDelay,
+        uint256 __votingPeriod
+    ) public initializer {
         __Ownable_init();
         __Governor_init(_name, _minTimeDelay);
 
@@ -78,13 +81,10 @@ contract DAO is OwnableUpgradeable, GovernorUpgradeable {
     /// @param proposalId 提议的ID
     /// @param account 账户地址
     /// @return bool 是否投票
-    function hasVoted(uint256 proposalId, address account)
-    public
-    view
-    virtual
-    override
-    returns (bool)
-    {
+    function hasVoted(
+        uint256 proposalId,
+        address account
+    ) public view virtual override returns (bool) {
         return _proposalVotes[proposalId].hasVoted[account];
     }
 
@@ -93,23 +93,16 @@ contract DAO is OwnableUpgradeable, GovernorUpgradeable {
     /// @return uint256 投反对票的数量
     /// @return uint256 投同意票的数量
     /// @return uint256 投弃权票的数量
-    function proposalVotes(uint256 proposalId)
-    public
-    view
-    virtual
-    returns (
-        uint256,
-        uint256,
-        uint256
-    )
-    {
+    function proposalVotes(
+        uint256 proposalId
+    ) public view virtual returns (uint256, uint256, uint256) {
         ProposalVote storage proposalvote = _proposalVotes[proposalId];
         return (proposalvote.againstVotes, proposalvote.forVotes, proposalvote.abstainVotes);
     }
 
     /// @dev 更新time depay(通过DAO提议完成)
     /// @param newDelay 新的延时配置
-    function updateDelay(uint256 newDelay) public virtual override onlyDAO() {
+    function updateDelay(uint256 newDelay) public virtual override onlyDAO {
         _updateDelay(newDelay);
     }
 
@@ -121,7 +114,7 @@ contract DAO is OwnableUpgradeable, GovernorUpgradeable {
 
     /// @dev 更新投票周期(通过DAO提议完成)
     /// @param newVotingPeriod 新的投票周期
-    function updateVotingPeriod(uint256 newVotingPeriod) public virtual onlyDAO() {
+    function updateVotingPeriod(uint256 newVotingPeriod) public virtual onlyDAO {
         _votingPeriod = newVotingPeriod;
     }
 
@@ -133,25 +126,25 @@ contract DAO is OwnableUpgradeable, GovernorUpgradeable {
 
     /// @dev 设置区块奖励
     /// @param newBlockReward 新的区块奖励
-    function setBlockReward(uint256 newBlockReward) public onlyDAO() {
+    function setBlockReward(uint256 newBlockReward) public onlyDAO {
         _blockReward = newBlockReward;
     }
 
     /// @dev 设置区块比例
     /// @param newBlockRatio 新的区块比例
-    function setBlockRatio(uint256 newBlockRatio) public onlyDAO() {
+    function setBlockRatio(uint256 newBlockRatio) public onlyDAO {
         _blockRatio = newBlockRatio;
     }
 
     /// @dev 查询区块奖励
     /// @return uint 区块奖励
-    function blockReward() public view returns (uint) {
+    function blockReward() public view returns (uint256) {
         return _blockReward;
     }
 
     /// @dev 查询区块比例
     /// @return uint 区块比例
-    function blockRatio() public view returns (uint) {
+    function blockRatio() public view returns (uint256) {
         return _blockRatio;
     }
 
@@ -169,8 +162,8 @@ contract DAO is OwnableUpgradeable, GovernorUpgradeable {
         ProposalVote storage proposalvote = _proposalVotes[proposalId];
 
         return
-        quorum(proposalSnapshot(proposalId)) <=
-        proposalvote.forVotes + proposalvote.abstainVotes;
+            quorum(proposalSnapshot(proposalId)) <=
+            proposalvote.forVotes + proposalvote.abstainVotes;
     }
 
     function _voteSucceeded(uint256 proposalId) internal view virtual override returns (bool) {
