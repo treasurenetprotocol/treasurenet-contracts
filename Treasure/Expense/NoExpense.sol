@@ -50,15 +50,11 @@ abstract contract NoExpense is ContextUpgradeable {
     }
 
     // customize
-    function _penalty(
-        address account,
-        uint256 value,
-        uint256 percent
-    ) internal returns (uint256) {
+    function _penalty(address account, uint256 value, uint256 percent) internal returns (uint256) {
         return 0;
     }
 
     function marginOf(address _account) public view returns (uint256, Status) {
-        return (0,Status.Normal);
+        return (0, Status.Normal);
     }
 }
