@@ -13,13 +13,13 @@ contract Bid is Initializable, OwnableUpgradeable {
     struct BiderList {
         address bider;
         uint256 amount;
-        uint256 time;
+        uint256 block;
     }
 
     address[] public TATBiders;
     mapping(address => bool) isTATBid;
     mapping(address => uint256) bidAmount;
-    mapping(address => uint256) bidTime;
+    mapping(address => uint256) bidBlock;
 
     /* At least 1 TAT */
     uint256 constant TAT_THRESHOLD = 1 * 1e18;
@@ -28,16 +28,16 @@ contract Bid is Initializable, OwnableUpgradeable {
     address private governance;
     ITAT private _tat;
 
-    // bonus stake 开始时间
-    uint256 private _startAt;
-    uint256 private constant ROUND_TIME = 5 minutes;
+    // stakeboosting start block
+    uint256 private _startBlock;
+    uint256 private constant ROUND_BLOCK = 60;
 
     function initialize(address _tatAddress) public initializer {
         __Ownable_init();
         _tat = ITAT(_tatAddress);
-        _startAt = block.timestamp;
+        _startBlock = block.number;
         _totalBid = 0;
-        emit BidStart(block.number);
+        emit BidStart(_startBlock);
     }
 
     receive() external payable {}
@@ -45,48 +45,48 @@ contract Bid is Initializable, OwnableUpgradeable {
     /* 是否已经进行过bonus stake */
     function isTATBider(address account) public view returns (bool){
         /* 超出周期等待触发的情况 */
-        if (block.timestamp > _startAt + ROUND_TIME) {
+        if (block.number > _startBlock + ROUND_BLOCK) {
             return false;
         }
         return isTATBid[account];
     }
 
-    /* 查看自己投了多少TAT */
+    /* Check how much TAT you have invested */
     function mybidAmount() public view returns (uint256){
         /* 用户不存在的情况 */
         if (bidAmount[msg.sender] == 0) {
             return 0;
         }
         /* 超出周期等待触发的情况 */
-        if (block.timestamp > _startAt + ROUND_TIME) {
+        if (block.number > _startBlock + ROUND_BLOCK) {
             return 0;
         }
         return bidAmount[msg.sender];
     }
 
-    /* 查看本轮起始时间 */
-    function roundTime() public view returns (uint256){
-        require(_startAt > 0, "bonus stake has not started yet");
-        uint256 time = _startAt;
-        if (block.timestamp > _startAt + ROUND_TIME) {
-            time = _startAt + (block.timestamp - _startAt) / ROUND_TIME * ROUND_TIME;
+    /* query start block number  */
+    function roundStartBlock() public view returns (uint256){
+        require(_startBlock > 0, "bonus stake has not started yet");
+        uint256 _block = _startBlock;
+        if (block.number > _startBlock + ROUND_BLOCK) {
+            _block = _startBlock + (block.number - _startBlock) / ROUND_BLOCK * ROUND_BLOCK;
         }
-        return time;
+        return _block;
     }
 
     /* Bonus Stake main process */
     function bidTAT(uint256 amount) public returns (bool){
         require(amount >= TAT_THRESHOLD, "TAT not enough to bid");
-        if (block.timestamp > _startAt + ROUND_TIME) {
-            _startAt = _startAt + (block.timestamp - _startAt) / ROUND_TIME * ROUND_TIME;
+        if (block.number > _startBlock + ROUND_BLOCK) {
+            _startBlock = _startBlock + (block.number - _startBlock) / ROUND_BLOCK * ROUND_BLOCK;
             _totalBid = 0;
             for (uint256 i = 0; i < TATBiders.length; i++) {
                 delete isTATBid[TATBiders[i]];
                 delete bidAmount[TATBiders[i]];
-                delete bidTime[TATBiders[i]];
+                delete bidBlock[TATBiders[i]];
             }
             delete TATBiders;
-            //emit BidStart(_startAt);
+            //emit BidStart(_startBlock);
         }
 
         _tat.stake(msg.sender, amount);
@@ -96,7 +96,7 @@ contract Bid is Initializable, OwnableUpgradeable {
             TATBiders.push(msg.sender);
         }
         bidAmount[msg.sender] += amount;
-        bidTime[msg.sender] = block.timestamp;
+        bidBlock[msg.sender] = block.number;
 
         _totalBid += amount;
 
@@ -106,22 +106,22 @@ contract Bid is Initializable, OwnableUpgradeable {
 
     }
 
-    /* 查询列表 */
+    /* Query List */
     function bidderList() public view returns (BiderList[] memory, uint256, uint256){
-        uint256 time = _startAt;
+        uint256 _block = _startBlock;
         /* 超出周期等待触发的情况 */
-        if (block.timestamp > _startAt + ROUND_TIME) {
+        if (block.number > _startBlock + ROUND_BLOCK) {
             BiderList[] memory _empty = new BiderList[](0);
-            time = _startAt + (block.timestamp - _startAt) / ROUND_TIME * ROUND_TIME;
-            return (_empty, 0, time);
+            _block = _startBlock + (block.number - _startBlock) / ROUND_BLOCK * ROUND_BLOCK;
+            return (_empty, 0, _block);
         }
         BiderList[] memory list = new BiderList[](TATBiders.length);
         for (uint256 i = 0; i < TATBiders.length; i++) {
             list[i].bider = TATBiders[i];
             list[i].amount = bidAmount[TATBiders[i]];
-            list[i].time = bidTime[TATBiders[i]];
+            list[i].block = bidBlock[TATBiders[i]];
         }
-        return (list, _totalBid, time);
+        return (list, _totalBid, _block);
     }
 
 }

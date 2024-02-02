@@ -24,12 +24,12 @@ contract AirDrop is Initializable, OwnableUpgradeable {
         Stage2
     }
 
-    uint256 private constant STAGE_TIMELOCK = 90 days;
+    /*uint256 private constant STAGE_TIMELOCK = 90 days;*/
     /* for test 15mins */
-    /*uint256 private constant STAGE_TIMELOCK = 15 minutes;*/
-    uint256 private constant AirDrop_TIMELOCK = 30 days;
+    uint256 private constant STAGE_TIMELOCK = 15 minutes;
+    /*uint256 private constant AirDrop_TIMELOCK = 30 days;*/
     /* for test 10mins */
-    /*uint256 private constant AirDrop_TIMELOCK = 5 minutes;*/
+    uint256 private constant AirDrop_TIMELOCK = 5 minutes;
     uint256 private constant RELEASE_PERIODS = 12;
 
     // 不同阶段授予基金会的UNIT
@@ -83,23 +83,23 @@ contract AirDrop is Initializable, OwnableUpgradeable {
         require(vips.length == ratios.length, "vips.length must equal to ratios.length");
 
         // 基金会3000w，第一阶段直接授予1500w
-        _toFoundation[ClaimStage.Stage1] = 15000000 * 1e18;
+        /*_toFoundation[ClaimStage.Stage1] = 15000000 * 1e18;*/
         /* for test 15*/
-        /*_toFoundation[ClaimStage.Stage1] = 15 * 1e18;*/
+        _toFoundation[ClaimStage.Stage1] = 15 * 1e18;
         // _timeline[ClaimStage.Stage1] = block.timestamp;
         // 第二阶段为第一阶段的3个月后，此时解锁另外的1500w
-        _toFoundation[ClaimStage.Stage2] = 15000000 * 1e18;
+        /*_toFoundation[ClaimStage.Stage2] = 15000000 * 1e18;*/
         /* for test 15 */
-        /*_toFoundation[ClaimStage.Stage2] = 15 * 1e18;*/
+        _toFoundation[ClaimStage.Stage2] = 15 * 1e18;
         // _timeline[ClaimStage.Stage2] = block.timestamp + 90 days;
 
         // 空投开始时间为当前合约初始化时间
         _startAt = block.timestamp;
 
         // 授予VIP客户6000w
-         _remainedToVips = 60000000 * 1e18;
+        /* _remainedToVips = 60000000 * 1e18;*/
         /* for test 60 */
-        /*_remainedToVips = 60 * 1e18;*/
+        _remainedToVips = 60 * 1e18;
         for (uint256 i = 1; i <= RELEASE_PERIODS; i++) {
             _totalPerMonth[i] = _remainedToVips / RELEASE_PERIODS;
         }
@@ -135,9 +135,9 @@ contract AirDrop is Initializable, OwnableUpgradeable {
         require(totalRatios <= 100 * 1e6, "total ratios must <= 100 * 1e6");
         _totalRatios = totalRatios;
 
-        PROPOSAL_TIME_LOCK = 48 hours;
+        /*PROPOSAL_TIME_LOCK = 48 hours;*/
         /* for test 1mins */
-        /*PROPOSAL_TIME_LOCK = 1 minutes;*/
+        PROPOSAL_TIME_LOCK = 1 minutes;
     }
 
     modifier onlyFoundation() {
