@@ -147,21 +147,28 @@ abstract contract ProductionData is Context, Initializable, OracleClient, IProdu
         uint256 _value
     ) public override onlyFeeder returns (uint256) {
         require(_requestId == _requestIdToPullAssetValue, "invalid oracle request id");
-        require(_value > 0, "zero asset value");
-        _setResourceValue(_date, _value);
-        _counter.increment();
+        require(_date < 1000000, "Date format is not YYMMDD");
+        bool isZero = false;
+        if(_value == 0){
+            _value = _getAssetValue(_date);
+            isZero = true;
+        }else{
+            _counter.increment();
+        }
+        _setResourceValue(_date,_value,isZero);
         emit ReceiveAssetValue(TREASURE_KIND, _date, _value);
         return _value;
     }
 
-    function _setResourceValue(uint256 _date, uint256 _value) internal {
+    function _setResourceValue(uint256 _date, uint256 _value,bool isZero) internal {
         AssetValue memory value;
         value.Date = _date;
         value.Value = _value;
         value.Timestamp = block.timestamp;
-
         _assetMappedValues[_date] = value;
-        _assetValues.push(value);
+        if (isZero == false){
+            _assetValues.push(value);
+        }
     }
 
     /// @dev 获取某日期的Asset Value

@@ -59,19 +59,23 @@ contract GasData is ProductionData {
 
     // product add by producer
     function setProductionData(bytes32 _uniqueId, ProduceData memory _produceData)
-    public
-    override
-    onlyWhenActive(_uniqueId)
+        public
+        override
+        onlyWhenActive(_uniqueId)
     {
         IProducer.ProducerCore memory thisProducer = _getProducer(_uniqueId);
         require(_msgSender() == thisProducer.owner, "must be the producer");
-
         require(_produceData.month > 0, "zero production month");
+        require(_produceData.month < 10000, "month format is not YYMM");
         require(_produceData.date > 0, "zero production date");
+        require(_produceData.date < 1000000, "date format is not YYMMDD");
+        require(_produceData.amount > 0, "zero production amount");
 
         // 市场价值
-        uint256 price = _produceData.amount * _getAssetValue(_produceData.date) /
-        10000;
+        /* 小数设计 amount 入参放大10000 单价入参放大10000 */
+        uint256 price = (_produceData.amount * _getAssetValue(_produceData.date) * 1e18) /
+            10000 /
+            10000;
 
         bool _exist = false;
         for (uint256 i = 0; i < _uploadedProduceData[_produceData.month].length; i++) {
@@ -79,15 +83,15 @@ contract GasData is ProductionData {
                 _exist = true;
                 require(
                     _uploadedProduceData[_produceData.month][i].status ==
-                    ProduceDataStatus.UNAUDITED,
+                        ProduceDataStatus.UNAUDITED,
                     "production data that has been audited."
                 );
                 _uploadedProduceData[_produceData.month][i].amount =
-                _uploadedProduceData[_produceData.month][i].amount +
-                _produceData.amount;
+                    _uploadedProduceData[_produceData.month][i].amount +
+                    _produceData.amount;
                 _uploadedProduceData[_produceData.month][i].price =
-                _uploadedProduceData[_produceData.month][i].price +
-                price;
+                    _uploadedProduceData[_produceData.month][i].price +
+                    price;
                 break;
             }
         }
@@ -113,8 +117,12 @@ contract GasData is ProductionData {
         );
     }
 
-
-    function getProductionData(bytes32 _uniqueId, uint256 month) public view override returns (ProduceData memory){
+    function getProductionData(bytes32 _uniqueId, uint256 month)
+        public
+        view
+        override
+        returns (ProduceData memory)
+    {
         ProduceData memory data;
         for (uint256 i = 0; i < _uploadedProduceData[month].length; i++) {
             if (_uploadedProduceData[month][i].uniqueId == _uniqueId) {
@@ -173,7 +181,7 @@ contract GasData is ProductionData {
             _rewardByShare(_uniqueId, uploaded.price) == uploaded.price,
             "total minted must equal to trusted.amount"
         );
-        emit ClearingReward(TREASURE_KIND, _uniqueId, _month, trusted.price);
+        emit ClearingReward(TREASURE_KIND, _uniqueId, _month, uploaded.price);
 
         _uploadedProduceData[_month][index] = uploaded;
 

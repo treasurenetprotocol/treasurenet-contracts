@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "../../Governance/IParameterInfo.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-abstract contract Expense is Initializable{
+abstract contract Expense is Initializable {
     enum Action {
         NotSet,
         Deposite,
@@ -45,7 +45,10 @@ abstract contract Expense is Initializable{
     }
 
     modifier onlyDepositorNormal(address _account) {
-        require(_depositors[_account].status == Status.Normal,"must be depositor and must be Normal");
+        require(
+            _depositors[_account].status == Status.Normal,
+            "must be depositor and must be Normal"
+        );
         _;
     }
 
@@ -58,10 +61,10 @@ abstract contract Expense is Initializable{
             depositor.margin = msg.value;
             depositor.status = Status.Normal;
             _depositors[msg.sender] = depositor;
-        }else if (depositor.status == Status.Normal) {
+        } else if (depositor.status == Status.Normal) {
             depositor.margin += msg.value;
             _depositors[msg.sender] = depositor;
-        }else if (depositor.status == Status.Abnormal) {
+        } else if (depositor.status == Status.Abnormal) {
             uint256 debt = depositor.margin;
             if (debt <= msg.value) {
                 depositor.margin = msg.value - debt;
@@ -80,7 +83,9 @@ abstract contract Expense is Initializable{
         return true;
     }
 
-    function withdraw(uint256 amount) public payable onlyDepositorNormal(msg.sender) returns (bool) {
+    function withdraw(
+        uint256 amount
+    ) public payable onlyDepositorNormal(msg.sender) returns (bool) {
         Depositor storage depositor = _depositors[msg.sender];
         require(depositor.margin >= amount, "margin is not enough");
 
@@ -106,9 +111,9 @@ abstract contract Expense is Initializable{
 
         if (depositor.margin >= penaltyCost) {
             depositor.margin -= penaltyCost;
-            payable(address(this)).transfer(penaltyCost);
+            payable(address(this)).transfer(penaltyCost); //TODO: 转给自己？
         } else {
-            payable(address(this)).transfer(depositor.margin);
+            payable(address(this)).transfer(depositor.margin); //TODO: 转给自己？
             depositor.margin = penaltyCost - depositor.margin;
             depositor.status = Status.Abnormal;
             depositor.debtor = address(this);
