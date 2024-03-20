@@ -164,10 +164,10 @@ abstract contract GovernorUpgradeable is
         ProposalCore storage proposal = _proposals[proposalId];
 
         if (proposal.queued) {
-            return ProposalState.Queued;
             if (_timestamps[proposalId] > 0 && _timestamps[proposalId] >= block.timestamp) {
                 return ProposalState.Expired;
             }
+            return ProposalState.Queued;
         }
 
         if (proposal.executed) {

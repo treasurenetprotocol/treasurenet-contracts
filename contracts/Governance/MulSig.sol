@@ -51,11 +51,11 @@ contract MulSig is Initializable, OwnableUpgradeable {
         address payee;
     }
 
-     /// @dev 用于MulSig合约的初始化
-     /// @param _daoContract DAO合约地址
-     /// @param _governanceContract 治理合约地址
-     /// @param _roleContract 角色管理合约地址
-     /// @param _parameterInfoContract 参数管理合约地址
+    /// @dev 用于MulSig合约的初始化
+    /// @param _daoContract DAO合约地址
+    /// @param _governanceContract 治理合约地址
+    /// @param _roleContract 角色管理合约地址
+    /// @param _parameterInfoContract 参数管理合约地址
     function initialize(
         address _daoContract,
         address _governanceContract,
@@ -79,23 +79,23 @@ contract MulSig is Initializable, OwnableUpgradeable {
     }
 
     modifier onlyFoundationManager() {
-        require(_roles.hasRole(FOUNDATION_MANAGER , _msgSender()), "only foundation manager");
+        require(_roles.hasRole(FOUNDATION_MANAGER, _msgSender()), "only foundation manager");
         _;
     }
 
 
-    event ManagePermission(uint256 proposalId,address proposer, string name, address _add);
-     /// @dev 发起新的提议，为某用户添加/注销角色权限
-     ///  - 仅允许FoundationManager发起
-     ///  - Event:
-     ///  -   `event ManagePermission(address proposer, string name, address _add, uint256 proposalId);`
-     /// @param _name: 操作类型,包括:
-     ///   - FMD: 注销FoundationManager权限
-     ///   - FMA: 添加FoundationManager权限
-     ///   - FEEDERD: 添加FEEDER权限
-     ///   - FEEDERA：注销FEEDER权限
-     /// @param _account 账户地址
-     /// @return bool 是否成功发起proposal
+    event ManagePermission(uint256 proposalId, address proposer, string name, address _add);
+    /// @dev 发起新的提议，为某用户添加/注销角色权限
+    ///  - 仅允许FoundationManager发起
+    ///  - Event:
+    ///  -   `event ManagePermission(address proposer, string name, address _add, uint256 proposalId);`
+    /// @param _name: 操作类型,包括:
+    ///   - FMD: 注销FoundationManager权限
+    ///   - FMA: 添加FoundationManager权限
+    ///   - FEEDERD: 添加FEEDER权限
+    ///   - FEEDERA：注销FEEDER权限
+    /// @param _account 账户地址
+    /// @return bool 是否成功发起proposal
     function proposeToManagePermission(string memory _name, address _account) public onlyFoundationManager returns (bool) {
         require(address(0) != _account, "MulSig:zero address");
         uint256 proposalID = proposalIDx++;
@@ -107,19 +107,19 @@ contract MulSig is Initializable, OwnableUpgradeable {
         kk.signatureCount = 0;
         pendingProposals.push(proposalID);
 
-        emit ManagePermission(proposalID,msg.sender, _name, _account);
+        emit ManagePermission(proposalID, msg.sender, _name, _account);
 
         return true;
     }
 
-    event AddResource(uint256 proposalId,address proposer, string name, address producerContract,address productionContract);
-     /// @dev 用于添加新的Treasure资产
-     ///  - Event:
-     ///     - event AddResource(address proposer, string name, address producerContract,address productionContract);
-     /// @param _name  资产名称
-     /// @param _producer 生产商管理合约
-     /// @param _productionData 生产数据管理合约
-     /// @return bool 是否成功发起proposal
+    event AddResource(uint256 proposalId, address proposer, string name, address producerContract, address productionContract);
+    /// @dev 用于添加新的Treasure资产
+    ///  - Event:
+    ///     - event AddResource(address proposer, string name, address producerContract,address productionContract);
+    /// @param _name  资产名称
+    /// @param _producer 生产商管理合约
+    /// @param _productionData 生产数据管理合约
+    /// @return bool 是否成功发起proposal
     function proposeToAddResource(
         string memory _name,
         address _producer,
@@ -136,23 +136,24 @@ contract MulSig is Initializable, OwnableUpgradeable {
 
         pendingProposals.push(proposalID);
 
-        emit AddResource(proposalID,msg.sender, _name, _producer, _productionData);
+        emit AddResource(proposalID, msg.sender, _name, _producer, _productionData);
 
         return true;
     }
 
-   event RegisterDApp(uint256 proposalId,address proposer,string treasure, string dapp,address payee);
-   function proposeToRegisterDApp(
+    event RegisterDApp(uint256 proposalId, address proposer, string treasure, string dapp, address payee);
+
+    function proposeToRegisterDApp(
         string memory _treasure,
         string memory _dapp,
         address _payee
     ) public onlyFoundationManager returns (bool) {
-        require(keccak256(bytes(_treasure)) != keccak256(bytes("")),"empty treasure name");
-        require(keccak256(bytes(_dapp)) != keccak256(bytes("")),"empty dapp name");
-        require(_payee != address(0),"empty DApp payee");
+        require(keccak256(bytes(_treasure)) != keccak256(bytes("")), "empty treasure name");
+        require(keccak256(bytes(_dapp)) != keccak256(bytes("")), "empty dapp name");
+        require(_payee != address(0), "empty DApp payee");
 
         (address producerContract,) = _governance.getTreasureByKind(_treasure);
-        require(producerContract != address(0),"treasure with this kind not found");
+        require(producerContract != address(0), "treasure with this kind not found");
 
         uint256 proposalID = proposalIDx++;
         proposal storage kk = proposals[proposalID];
@@ -167,19 +168,19 @@ contract MulSig is Initializable, OwnableUpgradeable {
 
         pendingProposals.push(proposalID);
 
-        emit RegisterDApp(proposalID, kk.proposer,_treasure, _dapp, _payee);
+        emit RegisterDApp(proposalID, kk.proposer, _treasure, _dapp, _payee);
 
         return true;
     }
 
 
-    event SetPlatformConfig(uint256 proposalId,address proposer, string name, uint256 _value);
+    event SetPlatformConfig(uint256 proposalId, address proposer, string name, uint256 _value);
     /// @dev 用于发起修改平台配置信息(parameterInfo)
     ///  - Event
     ///     -  event SetPlatformConfig(address proposer, string name, uint256 _value);
-     /// @param _name  配置信息key
-     /// @param _value 配置信息值
-     /// @return bool 是否成功发起proposal
+    /// @param _name  配置信息key
+    /// @param _value 配置信息值
+    /// @return bool 是否成功发起proposal
     function proposeToSetPlatformConfig(string memory _name, uint256 _value) public onlyFoundationManager returns (bool) {
         uint256 proposalID = proposalIDx++;
         proposal storage kk = proposals[proposalID];
@@ -190,12 +191,12 @@ contract MulSig is Initializable, OwnableUpgradeable {
         kk.signatureCount = 0;
         pendingProposals.push(proposalID);
 
-        emit SetPlatformConfig(proposalID,msg.sender, _name, _value);
+        emit SetPlatformConfig(proposalID, msg.sender, _name, _value);
 
         return true;
     }
 
-    event SetDiscountConfig(uint256 proposalId,address proposer,IParameterInfo.PriceDiscountConfig config);
+    event SetDiscountConfig(uint256 proposalId, address proposer, IParameterInfo.PriceDiscountConfig config);
     /// @dev 用于发起修改资产的折扣信息(parameterInfo.DiscountConfig)
     ///  - Event
     ///     - event SetDiscountConfig(address proposer,IParameterInfo.PriceDiscountConfig config);
@@ -232,7 +233,7 @@ contract MulSig is Initializable, OwnableUpgradeable {
         kk.signatureCount = 0;
         pendingProposals.push(proposalID);
 
-        emit SetDiscountConfig(proposalID,msg.sender,kk.data);
+        emit SetDiscountConfig(proposalID, msg.sender, kk.data);
 
         return true;
     }
@@ -243,7 +244,7 @@ contract MulSig is Initializable, OwnableUpgradeable {
         return pendingProposals;
     }
 
-    event ProposalSigned(uint256 proposalId,address signer);
+    event ProposalSigned(uint256 proposalId, address signer);
     /// @dev 由FoundationManager签发交易，同意某proposal
     /// @param _proposalId 提议对应的ID
     /// @return bool 请求是否成功
@@ -252,7 +253,7 @@ contract MulSig is Initializable, OwnableUpgradeable {
         // 未满足 多签阈值要求
         require(pro.signatureCount < _governance.fmThreshold(), "limit");
         // 当前signature发送者未发送过
-        require(pro.signatures[msg.sender] != 1,"already signed");
+        require(pro.signatures[msg.sender] != 1, "already signed");
         // 设置为已签名
         pro.signatures[msg.sender] = 1;
         pro.signatureCount++;
@@ -300,11 +301,11 @@ contract MulSig is Initializable, OwnableUpgradeable {
                 pro.data.discount[2],
                 pro.data.discount[3]
             );
-        }else if (pro._type == 5) {
+        } else if (pro._type == 5) {
             (address producerAddr,) = _governance.getTreasureByKind(pro.treasureKind);
-            require(producerAddr!= address(0),"treasure not found with proposal's treasure kind");
+            require(producerAddr != address(0), "treasure not found with proposal's treasure kind");
             IProducer _producer = IProducer(producerAddr);
-            _producer.registerDAppConnect(pro.name,pro.payee);
+            _producer.registerDAppConnect(pro.name, pro.payee);
         }
         deleteProposals(_proposalId);
 
@@ -313,41 +314,39 @@ contract MulSig is Initializable, OwnableUpgradeable {
         return true;
     }
 
-    /// @dev 查询proposal的详细信息
-    /// @param _proposalId 提议对应的ID
-    /// @return string 名称
-    /// @return address 账户地址(如果为修改账户权限)
-    /// @return uint256 a1 数值 (平台配置信息或者折扣信息)
-    /// @return uint256 a2 数值 (折扣信息)
-    /// @return uint256 a3 数值 (折扣信息)
-    /// @return uint256 a4 数值 (折扣信息)
-    /// @return uint256 a5 数值 (折扣信息)
-    /// @return uint256 a6 数值 (折扣信息)
-    /// @return uint256 executeTime 执行时间 (折扣信息)
+    struct ProposalResponse {
+        string name;
+        address _add;
+        uint256 a1;
+        uint256 a2;
+        uint256 a3;
+        uint256 a4;
+        uint256 a5;
+        uint256 a6;
+        uint256 executeTime;
+    }
+
+    /**
+      * 根据提案ID获取提案的详细信息。
+      *
+      * @param _proposalId 拟案的唯一标识符。
+     * @return 返回一个ProposalResponse结构体，包含提案的不同类型的信息。
+     */
     function transactionDetails(uint256 _proposalId)
-        public
-        view
-        returns (
-            string memory,
-            address,
-            uint256,
-            uint256,
-            uint256,
-            uint256,
-            uint256,
-            uint256,
-            uint256
-        )
+    public
+    view
+    returns (ProposalResponse memory)
     {
         proposal storage pro = proposals[_proposalId];
+        ProposalResponse memory pr;
         if (pro._type == 1) {
-            return (pro.name, pro._add, 0, 0, 0, 0, 0, 0, pro.excuteTime);
+            pr = ProposalResponse(pro.name, pro._add, 0, 0, 0, 0, 0, 0, pro.excuteTime);
         } else if (pro._type == 2) {
-            return (pro.name, address(0), 0, 0, 0, 0, 0, 0, pro.excuteTime);
+            pr = ProposalResponse(pro.name, address(0), 0, 0, 0, 0, 0, 0, pro.excuteTime);
         } else if (pro._type == 3) {
-            return (pro.name, address(0), pro.value, 0, 0, 0, 0, 0, pro.excuteTime);
+            pr = ProposalResponse(pro.name, address(0), pro.value, 0, 0, 0, 0, 0, pro.excuteTime);
         } else if (pro._type == 4) {
-            return (
+            pr = ProposalResponse(
                 "0",
                 address(0),
                 pro.data.API,
@@ -359,6 +358,7 @@ contract MulSig is Initializable, OwnableUpgradeable {
                 pro.excuteTime
             );
         }
+        return pr;
     }
 
     /// @dev 删除proposal
