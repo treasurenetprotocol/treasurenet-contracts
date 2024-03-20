@@ -4,3 +4,4 @@ build/*
 .openzeppelin/*
 .idea
 package-lock.json
+.env

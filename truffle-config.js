@@ -1,29 +1,5 @@
-/**
- * Use this file to configure your truffle project. It's seeded with some
- * common settings for different networks and features like migrations,
- * compilation and testing. Uncomment the ones you need or modify
- * them to suit your project as necessary.
- *
- * More information about configuration can be found at:
- *
- * https://trufflesuite.com/docs/truffle/reference/configuration
- *
- * To deploy via Infura you'll need a wallet provider (like @truffle/hdwallet-provider)
- * to sign your transactions before they're sent to a remote public node. Infura accounts
- * are available for free at: infura.io/register.
- *
- * You'll also need a mnemonic - the twelve word phrase the wallet uses to generate
- * public/private key pairs. If you're publishing your code to GitHub make sure you load this
- * phrase from a file you've .gitignored so it doesn't accidentally become public.
- *
- */
-
-/*
-const HDWalletProvider = require('@truffle/hdwallet-provider');
-
-const fs = require('fs');
-const mnemonic = fs.readFileSync(".secret").toString().trim();
-*/
+require('dotenv').config();
+const HDWalletProvider = require("@truffle/hdwallet-provider");
 
 module.exports = {
     /**
@@ -49,6 +25,16 @@ module.exports = {
             chain_id: "1337",
             network_id: "1337"     // Any network (default: none)
         },
+        treasurenet: {
+            provider: () => new HDWalletProvider({
+                privateKeys: [process.env.PRIVATE_KEY],
+                providerOrUrl: process.env.PROVIDER_URL,
+                pollingInterval: 30000,
+                networkCheckTimeout: 1000000000,
+                timeoutBlocks: 200000
+            }),
+            network_id: process.env.NETWORK_ID,
+        }
         // Another network with more advanced options...
         // advanced: {
         // port: 8777,             // Custom port
