@@ -36,7 +36,9 @@ abstract contract Expense is Initializable {
 
     IParameterInfo private _parameterInfo;
 
-    function __ExpenseInitialize(address _parameterInfoContract) internal onlyInitializing {
+    function __ExpenseInitialize(
+        address _parameterInfoContract
+    ) internal onlyInitializing {
         _parameterInfo = IParameterInfo(_parameterInfoContract);
     }
 
@@ -80,7 +82,13 @@ abstract contract Expense is Initializable {
             }
         }
 
-        emit ExpenseHistory(block.timestamp, msg.sender, Action.Deposite, "deposite", msg.value);
+        emit ExpenseHistory(
+            block.timestamp,
+            msg.sender,
+            Action.Deposite,
+            "deposite",
+            msg.value
+        );
 
         return true;
     }
@@ -94,7 +102,13 @@ abstract contract Expense is Initializable {
         _depositors[msg.sender].margin -= amount;
         payable(msg.sender).transfer(amount);
 
-        emit ExpenseHistory(block.timestamp, msg.sender, Action.Withdraw, "withdraw", amount);
+        emit ExpenseHistory(
+            block.timestamp,
+            msg.sender,
+            Action.Withdraw,
+            "withdraw",
+            amount
+        );
 
         return true;
     }
@@ -108,8 +122,9 @@ abstract contract Expense is Initializable {
         Depositor storage depositor = _depositors[account];
 
         /* 为了精度percent100% 为10000  这里多除两个0*/
-        uint256 penaltyCost = (value * percent * _parameterInfo.getPlatformConfig("marginRatio")) /
-            100000000;
+        uint256 penaltyCost = (value *
+            percent *
+            _parameterInfo.getPlatformConfig("marginRatio")) / 100000000;
 
         if (depositor.margin >= penaltyCost) {
             depositor.margin -= penaltyCost;
@@ -124,7 +139,13 @@ abstract contract Expense is Initializable {
             payable(address(this)).transfer(depositor.margin); //TODO: 转给自己？
         }
 
-        emit ExpenseHistory(block.timestamp, account, Action.Penalty, "penalty", penaltyCost);
+        emit ExpenseHistory(
+            block.timestamp,
+            account,
+            Action.Penalty,
+            "penalty",
+            penaltyCost
+        );
 
         return penaltyCost;
     }

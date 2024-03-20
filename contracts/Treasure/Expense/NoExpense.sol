@@ -50,7 +50,11 @@ abstract contract NoExpense is ContextUpgradeable {
     }
 
     // solhint-disable-next-line
-    function _penalty(address account, uint256 value, uint256 percent) internal returns (uint256) {
+    function _penalty(
+        address account,
+        uint256 value,
+        uint256 percent
+    ) internal returns (uint256) {
         return 0;
     }
     // solhint-disable-next-line
