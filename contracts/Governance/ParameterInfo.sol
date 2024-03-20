@@ -38,6 +38,10 @@ contract ParameterInfo is Context, Initializable, OwnableUpgradeable, IParameter
         _priceDiscountConfig.discount = [9000, 8500, 8000, 7500];
     }
 
+    /*function _contextSuffixLength() internal view virtual override(Context,ContextUpgradeable) returns (uint256) {
+        return ContextUpgradeable._contextSuffixLength();
+    }*/
+
     modifier onlyMulSig() {
         require(_msgSender() == _mulSig, "");
         _;

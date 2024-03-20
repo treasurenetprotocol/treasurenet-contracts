@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "./CosmosToken.sol";
+import "./cosmosToken.sol";
 
     error InvalidSignature();
     error InvalidValsetNonce(uint256 newNonce, uint256 currentNonce);
