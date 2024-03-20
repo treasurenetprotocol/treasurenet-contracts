@@ -4,16 +4,16 @@ Provides storage and processing procedures for manufacturer and production data 
 
 # Oil
 
-[module documentation](https://github.com/treasurenetprotocol/treasurenet-contracts/tree/main/docs/treasure/oil)
+[documentation](https://github.com/treasurenetprotocol/treasurenet-contracts/tree/main/docs/treasure/oil)
 
 # Gas
 
-[module documentation](https://github.com/treasurenetprotocol/treasurenet-contracts/tree/main/docs/treasure/gas)
+[documentation](https://github.com/treasurenetprotocol/treasurenet-contracts/tree/main/docs/treasure/gas)
 
 # Eth
 
-[module documentation](https://github.com/treasurenetprotocol/treasurenet-contracts/tree/main/docs/treasure/eth)
+[documentation](https://github.com/treasurenetprotocol/treasurenet-contracts/tree/main/docs/treasure/eth)
 
 # Btc
 
-[module documentation](https://github.com/treasurenetprotocol/treasurenet-contracts/tree/main/docs/treasure/btc)
+[documentation](https://github.com/treasurenetprotocol/treasurenet-contracts/tree/main/docs/treasure/btc)

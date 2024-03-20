@@ -11,11 +11,11 @@ Treasurenet proposes a solution for the critical lack of sustaining and tangible
 # Treasurenet Contracts
 
 includes:
-- AirDrop: Contracts related to airdrop [(module documentation)](https://github.com/treasurenetprotocol/treasurenet-contracts/tree/main/docs/airdrop)
-- Bid: "Bid" is the old name, now it should be "stake boosting". Contracts related to stake boosting [(module documentation)](https://github.com/treasurenetprotocol/treasurenet-contracts/tree/main/docs/stakeboosting)
-- Crosschain: Contracts used by the cross-chain module integrated by Treasurenet.[(module documentation)](https://github.com/treasurenetprotocol/treasurenet-contracts/tree/main/docs/crosschain)
-- Governance: Treasurenet contract-side governance and the contracts required for configuration.[(module documentation)](https://github.com/treasurenetprotocol/treasurenet-contracts/tree/main/docs/crosschain)
-- Oracle: Treasurenet Oracle Contracts[(module documentation)](https://github.com/treasurenetprotocol/treasurenet-contracts/tree/main/docs/oracle)
-- TAT: Treasurenet Accounting Token(a ERC20 Token).[(module documentation)](https://github.com/treasurenetprotocol/treasurenet-contracts/tree/main/docs/tat)
-- Treasure: It mainly includes four ways to generate TAT contracts: Oil, Gas, BTCminting, and ETHminting.Producer is mainly responsible for recording and processing information related to manufacturers, while Data records and processes production information.[(module documentation)](https://github.com/treasurenetprotocol/treasurenet-contracts/tree/main/docs/treasure)
-- USTN: a ERC20 Stablecoin[(module documentation)](https://github.com/treasurenetprotocol/treasurenet-contracts/tree/main/docs/USTN)
+- AirDrop: Contracts related to airdrop [(Link)](https://github.com/treasurenetprotocol/treasurenet-contracts/tree/main/docs/airdrop)
+- Bid: "Bid" is the old name, now it should be "stake boosting". Contracts related to stake boosting [(Link)](https://github.com/treasurenetprotocol/treasurenet-contracts/tree/main/docs/stakeboosting)
+- Crosschain: Contracts used by the cross-chain module integrated by Treasurenet.[(Link)](https://github.com/treasurenetprotocol/treasurenet-contracts/tree/main/docs/crosschain)
+- Governance: Treasurenet contract-side governance and the contracts required for configuration.[(Link)](https://github.com/treasurenetprotocol/treasurenet-contracts/tree/main/docs/crosschain)
+- Oracle: Treasurenet Oracle Contracts[(Link)](https://github.com/treasurenetprotocol/treasurenet-contracts/tree/main/docs/oracle)
+- TAT: Treasurenet Accounting Token(a ERC20 Token).[(Link)](https://github.com/treasurenetprotocol/treasurenet-contracts/tree/main/docs/tat)
+- Treasure: It mainly includes four ways to generate TAT contracts: Oil, Gas, BTCminting, and ETHminting.Producer is mainly responsible for recording and processing information related to manufacturers, while Data records and processes production information.[(Link)](https://github.com/treasurenetprotocol/treasurenet-contracts/tree/main/docs/treasure)
+- USTN: a ERC20 Stablecoin[(Link)](https://github.com/treasurenetprotocol/treasurenet-contracts/tree/main/docs/USTN)
