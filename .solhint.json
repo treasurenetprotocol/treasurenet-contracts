@@ -5,6 +5,8 @@
   ],
   "rules": {
     "no-global-import": "off",
+    "custom-errors": "off",
+    "no-empty-blocks": "off",
     "avoid-throw": false,
     "avoid-suicide": "error",
     "avoid-sha3": "warn",

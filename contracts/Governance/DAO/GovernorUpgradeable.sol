@@ -16,10 +16,6 @@ import "@openzeppelin/contracts-upgradeable/utils/TimersUpgradeable.sol";
 import "./IGovernorUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-/**
- * @dev GoverorUpgradeable实现了DAO合约的核心功能
- * @author bjwswang
- */
 abstract contract GovernorUpgradeable is
     Initializable,
     ContextUpgradeable,
@@ -400,6 +396,7 @@ abstract contract GovernorUpgradeable is
     ) internal virtual {
         string memory errorMessage = "Governor: call reverted without message";
         for (uint256 i = 0; i < targets.length; ++i) {
+            // solhint-disable-next-line
             (bool success, bytes memory returndata) = targets[i].call(calldatas[i]);
             AddressUpgradeable.verifyCallResult(success, returndata, errorMessage);
         }
