@@ -44,16 +44,16 @@ abstract contract NoExpense is ContextUpgradeable {
     function prepay() public payable returns (bool) {
         return true;
     }
-
+    // solhint-disable-next-line
     function withdraw(uint256 amount) public payable returns (bool) {
         return true;
     }
 
-    // customize
+    // solhint-disable-next-line
     function _penalty(address account, uint256 value, uint256 percent) internal returns (uint256) {
         return 0;
     }
-
+    // solhint-disable-next-line
     function marginOf(address _account) public view returns (uint256, Status) {
         return (0, Status.Normal);
     }

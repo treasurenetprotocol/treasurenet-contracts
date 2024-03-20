@@ -5,24 +5,23 @@ import "./GovernorUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-/**
- * @dev DAO 自治组织合约实现
- * @title DAO 自治组织合约
- * @author bjwswang
- */
 contract DAO is OwnableUpgradeable, GovernorUpgradeable {
-    /// DAO合约部署时区块时间
+    /* Block time when DAO contract is deployed */
     uint256 private _deployedBlockTime;
-    /// 当前区块奖励
+    /* Current block reward */
     uint256 private _blockReward;
-    /// 当前区块比例
+    /* Current block ratio */
     uint256 private _blockRatio;
-    /// 投票周期
+    /* Voting period */
     uint256 private _votingPeriod;
 
     event MinDelayChange(uint256 oldDuration, uint256 newDuration);
 
-    /// 投票类型: Agains反对 For统一 Abstain弃权
+    /*  Voting type:
+        Against: Against
+        For: Agree
+        Abstain: Abstain
+    */
     enum VoteType {
         Against,
         For,
@@ -45,10 +44,11 @@ contract DAO is OwnableUpgradeable, GovernorUpgradeable {
         _;
     }
 
-    /// @dev 合约初始化
-    /// @param _name DAO组织名称
-    /// @param _minTimeDelay 最小时间延时 (timestamp)
-    /// @param __votingPeriod 投票周期 ()
+    /* contract initialization
+       _name: DAO organization name
+       _minTimeDelay: minimum time delay (timestamp)
+       _votingPeriod: voting period
+    */
     function initialize(
         string memory _name,
         uint256 _minTimeDelay,
@@ -77,10 +77,11 @@ contract DAO is OwnableUpgradeable, GovernorUpgradeable {
         return "support=bravo&quorum=for,abstain";
     }
 
-    /// @dev 用户是否已经投票
-    /// @param proposalId 提议的ID
-    /// @param account 账户地址
-    /// @return bool 是否投票
+    /* Whether the user has voted
+       proposalId: ID of the proposal
+       account: address of the user
+       bool: whether the user has voted
+    */
     function hasVoted(
         uint256 proposalId,
         address account
@@ -88,11 +89,12 @@ contract DAO is OwnableUpgradeable, GovernorUpgradeable {
         return _proposalVotes[proposalId].hasVoted[account];
     }
 
-    /// @dev 查看proposal当前的投票详情
-    /// @param proposalId 提议的ID
-    /// @return uint256 投反对票的数量
-    /// @return uint256 投同意票的数量
-    /// @return uint256 投弃权票的数量
+    /* View the current voting details of the proposal
+       proposalId: ID of the proposal
+       uint256: The number of negative votes
+       uint256: The number of agree votes
+       uint256: The number of abstain votes
+    */
     function proposalVotes(
         uint256 proposalId
     ) public view virtual returns (uint256, uint256, uint256) {
@@ -100,62 +102,67 @@ contract DAO is OwnableUpgradeable, GovernorUpgradeable {
         return (proposalvote.againstVotes, proposalvote.forVotes, proposalvote.abstainVotes);
     }
 
-    /// @dev 更新time depay(通过DAO提议完成)
-    /// @param newDelay 新的延时配置
+    /* update time depay (completed through DAO proposal)
+       newDelay: new time delay (timestamp)
+    */
     function updateDelay(uint256 newDelay) public virtual override onlyDAO {
         _updateDelay(newDelay);
     }
 
-    /// @dev 查询当前votingDelay
-    /// @return uint256 返回
+    /* Query the current votingDelay */
     function votingDelay() public view override returns (uint256) {
         return _getDelay();
     }
 
-    /// @dev 更新投票周期(通过DAO提议完成)
-    /// @param newVotingPeriod 新的投票周期
+    /* updates the voting cycle (completed through DAO proposal)
+       newVotingPeriod: new voting period
+    */
     function updateVotingPeriod(uint256 newVotingPeriod) public virtual onlyDAO {
         _votingPeriod = newVotingPeriod;
     }
 
-    /// @dev 查询当前投票周期
-    /// @return uint256 投票周期
+    /* Query the current voting cycle
+       uint256: voting period
+    */
     function votingPeriod() public view override returns (uint256) {
         return _votingPeriod;
     }
 
-    /// @dev 设置区块奖励
-    /// @param newBlockReward 新的区块奖励
+    /* Set block reward
+       newBlockReward: new block reward
+    */
     function setBlockReward(uint256 newBlockReward) public onlyDAO {
         _blockReward = newBlockReward;
     }
 
-    /// @dev 设置区块比例
-    /// @param newBlockRatio 新的区块比例
+    /* Set block ratio
+       newBlockRatio: new block ratio
+    */
     function setBlockRatio(uint256 newBlockRatio) public onlyDAO {
         _blockRatio = newBlockRatio;
     }
 
-    /// @dev 查询区块奖励
-    /// @return uint 区块奖励
+    /* get block reward */
     function blockReward() public view returns (uint256) {
         return _blockReward;
     }
 
-    /// @dev 查询区块比例
-    /// @return uint 区块比例
+    /* get block ratio */
     function blockRatio() public view returns (uint256) {
         return _blockRatio;
     }
 
-    /// @dev 提议生效的法定票数
-    /// @return uint256 返回值
+    /* The quorum for the proposal to take effect
+       blockNumber: block number
+       uint256: quorum
+    */
     function quorum(uint256 blockNumber) public view override returns (uint256) {
         if (blockNumber <= _deployedBlockTime) {
             return 0;
         }
+        /* _blockRatio needs to be divided by 10000 to provide greater precision */
         return ((blockNumber - _deployedBlockTime) * _blockReward * _blockRatio) / 100 / 10000;
-        // _blockRatio 需要除以10000 以提供更高精度
+
     }
 
     function _quorumReached(uint256 proposalId) internal view virtual override returns (bool) {

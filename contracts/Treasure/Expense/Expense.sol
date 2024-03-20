@@ -70,12 +70,14 @@ abstract contract Expense is Initializable {
                 depositor.margin = msg.value - debt;
                 depositor.status = Status.Normal;
                 depositor.debtor = address(0);
+                _depositors[msg.sender] = depositor;
                 payable(depositor.debtor).transfer(debt);
             } else {
                 depositor.margin -= msg.value;
+                // solhint-disable-next-line
+                _depositors[msg.sender] = depositor;
                 payable(depositor.debtor).transfer(msg.value);
             }
-            _depositors[msg.sender] = depositor;
         }
 
         emit ExpenseHistory(block.timestamp, msg.sender, Action.Deposite, "deposite", msg.value);
@@ -111,15 +113,16 @@ abstract contract Expense is Initializable {
 
         if (depositor.margin >= penaltyCost) {
             depositor.margin -= penaltyCost;
+            _depositors[msg.sender] = depositor;
             payable(address(this)).transfer(penaltyCost); //TODO: 转给自己？
         } else {
-            payable(address(this)).transfer(depositor.margin); //TODO: 转给自己？
             depositor.margin = penaltyCost - depositor.margin;
             depositor.status = Status.Abnormal;
             depositor.debtor = address(this);
+            // solhint-disable-next-line
+            _depositors[msg.sender] = depositor;
+            payable(address(this)).transfer(depositor.margin); //TODO: 转给自己？
         }
-
-        _depositors[msg.sender] = depositor;
 
         emit ExpenseHistory(block.timestamp, account, Action.Penalty, "penalty", penaltyCost);
 
