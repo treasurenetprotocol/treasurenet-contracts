@@ -27,5 +27,9 @@ npm run ganache
 npm run test
 ```
 
+## Introduction and APIs
+
+[module documentation](https://github.com/treasurenetprotocol/treasurenet-contracts/tree/main/docs)
+
 -----
 _Treasurenet Foundation 2024_
