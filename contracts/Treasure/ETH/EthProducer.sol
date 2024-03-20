@@ -33,7 +33,10 @@ contract EthProducer is Producer {
         super._beforeAddProducer(_uniqueId, _producer);
 
         require(_producer.owner != address(0), "zero producer owner address");
-        require(keccak256(bytes(_producer.nickname)) != keccak256(bytes("")), "empty nickname");
+        require(
+            keccak256(bytes(_producer.nickname)) != keccak256(bytes("")),
+            "empty nickname"
+        );
 
         // initialize `Share`
         _setOwner(_uniqueId, _producer.owner);

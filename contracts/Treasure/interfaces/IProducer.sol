@@ -34,21 +34,39 @@ interface IProducer is IShare {
         Deactive
     }
 
-    function addProducer(bytes32 uniqueId, ProducerCore memory _producer) external;
+    function addProducer(
+        bytes32 uniqueId,
+        ProducerCore memory _producer
+    ) external;
 
     function getProducer(
         bytes32 _uniqueId
     ) external view returns (ProducerStatus, ProducerCore memory);
 
-    function setProducerStatus(bytes32 _uniqueId, ProducerStatus _newStatus) external;
+    function setProducerStatus(
+        bytes32 _uniqueId,
+        ProducerStatus _newStatus
+    ) external;
 
-    function producerStatus(bytes32 uniqueId) external view returns (ProducerStatus);
+    function producerStatus(
+        bytes32 uniqueId
+    ) external view returns (ProducerStatus);
 
-    function updateProdcuer(bytes32 uniqueId, ProducerCore memory _producer) external;
+    function updateProdcuer(
+        bytes32 uniqueId,
+        ProducerCore memory _producer
+    ) external;
 
-    function registerDAppConnect(string memory dapp, address payee) external returns (bytes32);
+    function registerDAppConnect(
+        string memory dapp,
+        address payee
+    ) external returns (bytes32);
 
     function getDAppPayee(bytes32 _dappId) external returns (address);
 
-    function link(bytes32[] memory _uniqueIds, bytes32 _key, bytes32 _dappId) external;
+    function link(
+        bytes32[] memory _uniqueIds,
+        bytes32 _key,
+        bytes32 _dappId
+    ) external;
 }

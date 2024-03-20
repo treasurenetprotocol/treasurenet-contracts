@@ -27,9 +27,12 @@ abstract contract GovernorUpgradeable is
     using SafeCastUpgradeable for uint256;
     using TimersUpgradeable for TimersUpgradeable.BlockNumber;
 
-    bytes32 public constant BALLOT_TYPEHASH = keccak256("Ballot(uint256 proposalId,uint8 support)");
+    bytes32 public constant BALLOT_TYPEHASH =
+        keccak256("Ballot(uint256 proposalId,uint8 support)");
     bytes32 public constant EXTENDED_BALLOT_TYPEHASH =
-        keccak256("ExtendedBallot(uint256 proposalId,uint8 support,string reason,bytes params)");
+        keccak256(
+            "ExtendedBallot(uint256 proposalId,uint8 support,string reason,bytes params)"
+        );
 
     struct ProposalCore {
         TimersUpgradeable.BlockNumber voteStart;
@@ -87,20 +90,27 @@ abstract contract GovernorUpgradeable is
     /**
      * @dev Sets the value for {name} and {version}
      */
-    function __Governor_init(string memory name_, uint256 minDelay_) internal onlyInitializing {
+    function __Governor_init(
+        string memory name_,
+        uint256 minDelay_
+    ) internal onlyInitializing {
         __EIP712_init_unchained(name_, version());
         __Governor_init_unchained(name_);
         _minDelay = minDelay_;
     }
 
-    function __Governor_init_unchained(string memory name_) internal onlyInitializing {
+    function __Governor_init_unchained(
+        string memory name_
+    ) internal onlyInitializing {
         _name = name_;
     }
 
     /**
      * @dev See {IERC165-supportsInterface}.
      */
-    function supportsInterface(bytes4 interfaceId)
+    function supportsInterface(
+        bytes4 interfaceId
+    )
         public
         view
         virtual
@@ -139,7 +149,8 @@ abstract contract GovernorUpgradeable is
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) public pure virtual override returns (uint256) {
-        return uint256(keccak256(abi.encode(targets, calldatas, descriptionHash)));
+        return
+            uint256(keccak256(abi.encode(targets, calldatas, descriptionHash)));
     }
 
     /// @dev 查询proposal的当前状态
@@ -156,11 +167,16 @@ abstract contract GovernorUpgradeable is
     ///     Executed,
     ///     ManualExecuted
     /// }
-    function state(uint256 proposalId) public view virtual override returns (ProposalState) {
+    function state(
+        uint256 proposalId
+    ) public view virtual override returns (ProposalState) {
         ProposalCore storage proposal = _proposals[proposalId];
 
         if (proposal.queued) {
-            if (_timestamps[proposalId] > 0 && _timestamps[proposalId] >= block.timestamp) {
+            if (
+                _timestamps[proposalId] > 0 &&
+                _timestamps[proposalId] >= block.timestamp
+            ) {
                 return ProposalState.Expired;
             }
             return ProposalState.Queued;
@@ -204,14 +220,18 @@ abstract contract GovernorUpgradeable is
     /// @dev 查询proposal投票的开始时间
     /// @param proposalId 提议的ID
     /// @return uint256 开始时间(block number)
-    function proposalSnapshot(uint256 proposalId) public view virtual override returns (uint256) {
+    function proposalSnapshot(
+        uint256 proposalId
+    ) public view virtual override returns (uint256) {
         return _proposals[proposalId].voteStart.getDeadline();
     }
 
     /// @dev 查询proposal投票的截止时间(block number)
     /// @param proposalId 提议的ID
     /// @return uint256 截止时间(block number)
-    function proposalDeadline(uint256 proposalId) public view virtual override returns (uint256) {
+    function proposalDeadline(
+        uint256 proposalId
+    ) public view virtual override returns (uint256) {
         return _proposals[proposalId].voteEnd.getDeadline();
     }
 
@@ -225,12 +245,16 @@ abstract contract GovernorUpgradeable is
     /**
      * @dev Amount of votes already cast passes the threshold limit.
      */
-    function _quorumReached(uint256 proposalId) internal view virtual returns (bool);
+    function _quorumReached(
+        uint256 proposalId
+    ) internal view virtual returns (bool);
 
     /**
      * @dev Is the proposal successful or not.
      */
-    function _voteSucceeded(uint256 proposalId) internal view virtual returns (bool);
+    function _voteSucceeded(
+        uint256 proposalId
+    ) internal view virtual returns (bool);
 
     /**
      * @dev Register a vote for `proposalId` by `account` with a given `support`, voting `weight` and voting `params`.
@@ -254,9 +278,16 @@ abstract contract GovernorUpgradeable is
         bytes[] memory calldatas,
         string memory description
     ) public payable virtual override returns (uint256) {
-        uint256 proposalId = hashProposal(targets, calldatas, keccak256(bytes(description)));
+        uint256 proposalId = hashProposal(
+            targets,
+            calldatas,
+            keccak256(bytes(description))
+        );
 
-        require(targets.length == calldatas.length, "Governor: invalid proposal length");
+        require(
+            targets.length == calldatas.length,
+            "Governor: invalid proposal length"
+        );
         //require(targets.length > 0, "Governor: empty proposal");  //有手动执行的版本
 
         if (targets.length == 0) {
@@ -266,7 +297,10 @@ abstract contract GovernorUpgradeable is
         }
 
         ProposalCore storage proposal = _proposals[proposalId];
-        require(proposal.voteStart.isUnset(), "Governor: proposal already exists");
+        require(
+            proposal.voteStart.isUnset(),
+            "Governor: proposal already exists"
+        );
 
         uint64 snapshot = 0;
         if (targets.length == 0) {
@@ -324,7 +358,10 @@ abstract contract GovernorUpgradeable is
         uint256 proposalId = hashProposal(targets, calldatas, descriptionHash);
         ProposalState status = state(proposalId);
 
-        require(status == ProposalState.Succeeded, "Governor: proposal not Succeeded yet");
+        require(
+            status == ProposalState.Succeeded,
+            "Governor: proposal not Succeeded yet"
+        );
 
         _timestamps[proposalId] = block.timestamp + _getDelay();
         _proposals[proposalId].queued = true;
@@ -335,12 +372,18 @@ abstract contract GovernorUpgradeable is
     }
 
     /* 非执行类 只需要手动处理 标识完成执行即可 */
-    function manualExecuted(uint256 proposalId) public virtual override returns (uint256) {
+    function manualExecuted(
+        uint256 proposalId
+    ) public virtual override returns (uint256) {
         //uint256 proposalId = hashProposal(targets, calldatas, descriptionHash);
         ProposalState status = state(proposalId);
-        require(status == ProposalState.Queued, "Governor: proposal not Queued yet");
         require(
-            _timestamps[proposalId] != _DONE_TIMESTAMP && _timestamps[proposalId] < block.timestamp,
+            status == ProposalState.Queued,
+            "Governor: proposal not Queued yet"
+        );
+        require(
+            _timestamps[proposalId] != _DONE_TIMESTAMP &&
+                _timestamps[proposalId] < block.timestamp,
             "min deplay not passed yet"
         );
         _proposals[proposalId].queued = false;
@@ -364,10 +407,14 @@ abstract contract GovernorUpgradeable is
 
         ProposalState status = state(proposalId);
 
-        require(status == ProposalState.Queued, "Governor: proposal not Queued yet");
+        require(
+            status == ProposalState.Queued,
+            "Governor: proposal not Queued yet"
+        );
 
         require(
-            _timestamps[proposalId] != _DONE_TIMESTAMP && _timestamps[proposalId] < block.timestamp,
+            _timestamps[proposalId] != _DONE_TIMESTAMP &&
+                _timestamps[proposalId] < block.timestamp,
             "min deplay not passed yet"
         );
 
@@ -389,7 +436,7 @@ abstract contract GovernorUpgradeable is
      * @dev Internal execution mechanism. Can be overridden to implement different execution mechanism
      */
     function _execute(
-        uint256, /* proposalId */
+        uint256 /* proposalId */,
         address[] memory targets,
         bytes[] memory calldatas,
         bytes32 /*descriptionHash*/
@@ -397,8 +444,14 @@ abstract contract GovernorUpgradeable is
         string memory errorMessage = "Governor: call reverted without message";
         for (uint256 i = 0; i < targets.length; ++i) {
             // solhint-disable-next-line
-            (bool success, bytes memory returndata) = targets[i].call(calldatas[i]);
-            AddressUpgradeable.verifyCallResult(success, returndata, errorMessage);
+            (bool success, bytes memory returndata) = targets[i].call(
+                calldatas[i]
+            );
+            AddressUpgradeable.verifyCallResult(
+                success,
+                returndata,
+                errorMessage
+            );
         }
     }
 
@@ -406,7 +459,7 @@ abstract contract GovernorUpgradeable is
      * @dev Hook before execution is triggered.
      */
     function _beforeExecute(
-        uint256, /* proposalId */
+        uint256 /* proposalId */,
         address[] memory targets,
         bytes[] memory calldatas,
         bytes32 /*descriptionHash*/
@@ -416,9 +469,9 @@ abstract contract GovernorUpgradeable is
      * @dev Hook after execution is triggered.
      */
     function _afterExecute(
-        uint256, /* proposalId */
-        address[] memory, /* targets */
-        bytes[] memory, /* calldatas */
+        uint256 /* proposalId */,
+        address[] memory /* targets */,
+        bytes[] memory /* calldatas */,
         bytes32 /*descriptionHash*/
     ) internal virtual {}
 
@@ -458,13 +511,10 @@ abstract contract GovernorUpgradeable is
     ///         Abstain  // 弃权
     ///     }
     /// @return uint256 返回weight
-    function castVote(uint256 proposalId, uint8 support)
-        public
-        payable
-        virtual
-        override
-        returns (uint256)
-    {
+    function castVote(
+        uint256 proposalId,
+        uint8 support
+    ) public payable virtual override returns (uint256) {
         require(msg.value >= 1 * 1e18, "Minimum 1UNIT");
         address voter = _msgSender();
 
@@ -490,7 +540,10 @@ abstract contract GovernorUpgradeable is
         uint8 support,
         uint256 weight
     ) internal virtual returns (uint256) {
-        require(state(proposalId) == ProposalState.Active, "Governor: vote not currently active");
+        require(
+            state(proposalId) == ProposalState.Active,
+            "Governor: vote not currently active"
+        );
 
         _countVote(proposalId, account, support, weight);
 
@@ -524,7 +577,9 @@ abstract contract GovernorUpgradeable is
     /// @dev 提议结束后，投票者可提回其token
     /// @param proposalId 提议id
     /// @return uint256 返回得token数量
-    function withdraw(uint256 proposalId) public payable virtual override returns (uint256) {
+    function withdraw(
+        uint256 proposalId
+    ) public payable virtual override returns (uint256) {
         require(
             state(proposalId) == ProposalState.Canceled ||
                 state(proposalId) == ProposalState.Defeated ||

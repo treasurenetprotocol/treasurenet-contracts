@@ -40,8 +40,12 @@ contract GasData is ProductionData {
 
         IProducer.ProducerCore memory thisProducer = _getProducer(_uniqueId);
 
-        if (_trustedProduceData[_produceData.month][_uniqueId].account == thisProducer.owner) {
-            _trustedProduceData[_produceData.month][_uniqueId].amount = _produceData.amount;
+        if (
+            _trustedProduceData[_produceData.month][_uniqueId].account ==
+            thisProducer.owner
+        ) {
+            _trustedProduceData[_produceData.month][_uniqueId]
+                .amount = _produceData.amount;
         } else {
             // ProduceData memory data;
             _produceData.account = thisProducer.owner;
@@ -58,11 +62,10 @@ contract GasData is ProductionData {
     }
 
     // product add by producer
-    function setProductionData(bytes32 _uniqueId, ProduceData memory _produceData)
-        public
-        override
-        onlyWhenActive(_uniqueId)
-    {
+    function setProductionData(
+        bytes32 _uniqueId,
+        ProduceData memory _produceData
+    ) public override onlyWhenActive(_uniqueId) {
         IProducer.ProducerCore memory thisProducer = _getProducer(_uniqueId);
         require(_msgSender() == thisProducer.owner, "must be the producer");
         require(_produceData.month > 0, "zero production month");
@@ -73,13 +76,22 @@ contract GasData is ProductionData {
 
         // 市场价值
         /* 小数设计 amount 入参放大10000 单价入参放大10000 */
-        uint256 price = (_produceData.amount * _getAssetValue(_produceData.date) * 1e18) /
+        uint256 price = (_produceData.amount *
+            _getAssetValue(_produceData.date) *
+            1e18) /
             10000 /
             10000;
 
         bool _exist = false;
-        for (uint256 i = 0; i < _uploadedProduceData[_produceData.month].length; i++) {
-            if (_uploadedProduceData[_produceData.month][i].uniqueId == _uniqueId) {
+        for (
+            uint256 i = 0;
+            i < _uploadedProduceData[_produceData.month].length;
+            i++
+        ) {
+            if (
+                _uploadedProduceData[_produceData.month][i].uniqueId ==
+                _uniqueId
+            ) {
                 _exist = true;
                 require(
                     _uploadedProduceData[_produceData.month][i].status ==
@@ -117,12 +129,10 @@ contract GasData is ProductionData {
         );
     }
 
-    function getProductionData(bytes32 _uniqueId, uint256 month)
-        public
-        view
-        override
-        returns (ProduceData memory)
-    {
+    function getProductionData(
+        bytes32 _uniqueId,
+        uint256 month
+    ) public view override returns (ProduceData memory) {
         ProduceData memory data;
         for (uint256 i = 0; i < _uploadedProduceData[month].length; i++) {
             if (_uploadedProduceData[month][i].uniqueId == _uniqueId) {
@@ -134,7 +144,10 @@ contract GasData is ProductionData {
     }
 
     // todorerset after vclearing
-    function _clearing(bytes32 _uniqueId, uint256 _month) internal override returns (bool) {
+    function _clearing(
+        bytes32 _uniqueId,
+        uint256 _month
+    ) internal override returns (bool) {
         ProduceData memory uploaded;
         uint256 index;
         for (uint256 i = 0; i < _uploadedProduceData[_month].length; i++) {
@@ -143,31 +156,50 @@ contract GasData is ProductionData {
                 index = i;
             }
         }
-        require(uploaded.account != address(0), "cleared or product data not found at this month");
+        require(
+            uploaded.account != address(0),
+            "cleared or product data not found at this month"
+        );
         require(
             uploaded.status == ProduceDataStatus.UNAUDITED,
             "this product data already audited"
         );
 
         ProduceData storage trusted = _trustedProduceData[_month][_uniqueId];
-        require(trusted.account != address(0), "cleared or product data not found at this month");
+        require(
+            trusted.account != address(0),
+            "cleared or product data not found at this month"
+        );
 
         emit VerifiedProduction(_uniqueId, _month, trusted.amount);
 
         // compare produce data within `uploaded` and `trusted`
         if (uploaded.amount > trusted.amount) {
-            uint256 nprice = (uploaded.price * trusted.amount) / uploaded.amount;
+            uint256 nprice = (uploaded.price * trusted.amount) /
+                uploaded.amount;
             uploaded.price = nprice;
 
-            uint256 deviation = ((uploaded.amount - trusted.amount) * 100 * 100) / trusted.amount;
+            uint256 deviation = ((uploaded.amount - trusted.amount) *
+                100 *
+                100) / trusted.amount;
             /* 为了精度 deviation放大100倍 */
             if (deviation > 3000) {
                 deviation = 10000;
             }
             //  仅在 >10%情况下惩罚
             if (deviation > 1000) {
-                uint256 penaltyCost = _penalty(uploaded.account, nprice, deviation);
-                emit ClearingPenalty(TREASURE_KIND, _uniqueId, _month, penaltyCost, deviation);
+                uint256 penaltyCost = _penalty(
+                    uploaded.account,
+                    nprice,
+                    deviation
+                );
+                emit ClearingPenalty(
+                    TREASURE_KIND,
+                    _uniqueId,
+                    _month,
+                    penaltyCost,
+                    deviation
+                );
                 // FAILED
                 uploaded.status = ProduceDataStatus.FAILED;
             } else {
@@ -188,13 +220,17 @@ contract GasData is ProductionData {
         return true;
     }
 
-    function _afterClearing(bytes32 _uniqueId, uint256 _month) internal override {}
+    function _afterClearing(
+        bytes32 _uniqueId,
+        uint256 _month
+    ) internal override {}
 
-    function _rewardByShare(bytes32 uniqueId, uint256 total) internal returns (uint256) {
-        (address[] memory accounts, uint256[] memory amounts) = _producer.calculateRewards(
-            uniqueId,
-            total
-        );
+    function _rewardByShare(
+        bytes32 uniqueId,
+        uint256 total
+    ) internal returns (uint256) {
+        (address[] memory accounts, uint256[] memory amounts) = _producer
+            .calculateRewards(uniqueId, total);
         return _reward(uniqueId, accounts, amounts);
     }
 }

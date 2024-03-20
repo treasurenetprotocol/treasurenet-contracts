@@ -21,7 +21,12 @@ interface IShare {
         uint256 currentTotalHolders,
         uint256 currentTotalShared
     );
-    event SplitHolder(bytes32 uniqueId, address from, address to, uint256 ratio);
+    event SplitHolder(
+        bytes32 uniqueId,
+        address from,
+        address to,
+        uint256 ratio
+    );
     event DeleteHolder(bytes32 uniqueId, address holder);
 
     // Share management
@@ -31,9 +36,15 @@ interface IShare {
 
     function totalShared(bytes32 _uniqueId) external view returns (uint256);
 
-    function holder(bytes32 _uniqueId, address _holder) external view returns (Holder memory);
+    function holder(
+        bytes32 _uniqueId,
+        address _holder
+    ) external view returns (Holder memory);
 
-    function isHolder(bytes32 _uniqueId, address _holder) external view returns (bool);
+    function isHolder(
+        bytes32 _uniqueId,
+        address _holder
+    ) external view returns (bool);
 
     function setHolders(
         bytes32 _uniqueId,
@@ -49,7 +60,8 @@ interface IShare {
 
     function deleteHolder(bytes32 _uniqueId, address _holder) external;
 
-    function calculateRewards(bytes32 _uniqueId, uint256 total)
-        external
-        returns (address[] memory, uint256[] memory);
+    function calculateRewards(
+        bytes32 _uniqueId,
+        uint256 total
+    ) external returns (address[] memory, uint256[] memory);
 }

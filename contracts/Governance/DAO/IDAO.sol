@@ -19,7 +19,10 @@ interface IDAO {
         string memory description
     ) external returns (uint256 proposalId);
 
-    function castVote(uint256 proposalId, uint8 support) external payable returns (uint256 balance);
+    function castVote(
+        uint256 proposalId,
+        uint8 support
+    ) external payable returns (uint256 balance);
 
     function withdraw(uint256 proposalId) external payable returns (uint256);
 
@@ -35,7 +38,10 @@ interface IDAO {
         bytes32 descriptionHash
     ) external payable returns (uint256 proposalId);
 
-    function hasVoted(uint256 proposalId, address account) external view returns (bool);
+    function hasVoted(
+        uint256 proposalId,
+        address account
+    ) external view returns (bool);
 
     function state(uint256 proposalId) external view returns (ProposalState);
 
