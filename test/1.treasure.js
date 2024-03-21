@@ -19,21 +19,33 @@ contract("treasure", async (accounts) => {
         const _producer = [TEST_NICKNAME, accounts[1], 100, 100, '']
         const _uniqueId = TEST_UNIQUE_ID;
 
+        /* Stringification of parameters */
+        const __producer = _producer.map(i => typeof (i) === 'number' ? i.toString() : i);
+
         /* add producer */
         const stepAddProducer = await oilProducer.addProducer(_uniqueId, _producer, {from: accounts[1]});
 
-        /* Stringification of parameters */
-        const __producer=_producer.map(i=>typeof(i)==='number'?i.toString():i);
+        /* Event test */
+        {
+            const eventName = stepAddProducer.logs[0].event;
+            const eventArgs = stepAddProducer.logs[0].args;
+            assert.equal(eventName, "AddProducer");
+            assert.equal(eventArgs.uniqueId, _uniqueId);
+            assert.deepEqual([eventArgs.producer.nickname, eventArgs.producer.owner, eventArgs.producer.API, eventArgs.producer.sulphur, eventArgs.producer.account], __producer);
+        }
+        /* set producer status */
+        const _newStatus = 1;
+        const stepSetProducerStatys = await oilProducer.setProducerStatus(_uniqueId, _newStatus, {from: accounts[0]});
 
         /* Event test */
-        const eventName = stepAddProducer.logs[0].event;
-        const eventArgs = stepAddProducer.logs[0].args;
-        assert.equal(eventName, "AddProducer");
-        assert.equal(eventArgs.uniqueId, _uniqueId);
-        assert.deepEqual([eventArgs.producer.nickname, eventArgs.producer.owner, eventArgs.producer.API, eventArgs.producer.sulphur, eventArgs.producer.account], __producer);
+        {
+            const eventName = stepSetProducerStatys.logs[0].event;
+            const eventArgs = stepSetProducerStatys.logs[0].args;
+            assert.equal(eventName, "SetProducerStatus");
+            assert.equal(eventArgs.uniqueId, _uniqueId);
+            assert.equal(eventArgs.status, _newStatus.toString());
+        }
 
-        /* set producer status */
-        await oilProducer.setProducerStatus(_uniqueId, 1, {from: accounts[0]});
         /* get producer */
         const resultProducer = await oilProducer.getProducer.call(_uniqueId);
 
