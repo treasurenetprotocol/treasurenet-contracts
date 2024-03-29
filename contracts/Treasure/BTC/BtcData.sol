@@ -107,7 +107,7 @@ contract BtcData is ProductionData {
             TREASURE_KIND,
             _uniqueId,
             blockNumber,
-            trusted.price
+            trusted.amount
         );
 
         trusted.status = ProduceDataStatus.FINISHED;
