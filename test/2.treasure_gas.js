@@ -4,20 +4,20 @@
  * Date: 2023/04/01
  * Desc
  */
-const OilProducer = artifacts.require("OilProducer");
-const OilData = artifacts.require("OilData");
+const GasProducer = artifacts.require("GasProducer");
+const GasData = artifacts.require("GasData");
 const TAT = artifacts.require("TAT");
 
 const WELL = {
-    NICKNAME: "Well1",
-    UNIQUE_ID: "0x4872484e4579694e575a65745956524879303873690000000000000000000000",
+    NICKNAME: "Well2",
+    UNIQUE_ID: "0x4872484e4579694e575a65745956524879303873690000000000000000000001",
     REQUEST_ID: "",
     ACCOUNT: "",
-    API: 3000n,
-    SULPHUR: 480n
+    API: 0n,   //no used
+    SULPHUR: 0n  //no used
 }
 const ASSETS = {
-    KIND: "OIL",
+    KIND: "GAS",
     REQUEST_ID: "",
 }
 
@@ -32,10 +32,10 @@ const TRUSTED_PRODUCTION_DATA = {
 
 const EXPENSE_AMOUNT = BigInt(10 * 1e18);
 
-contract("Treasure-Oil", async (accounts) => {
+contract("Treasure-Gas", async (accounts) => {
 
-    it("Add oil producers and modify status.", async () => {
-        const oilProducer = await OilProducer.deployed();
+    it("Add gas producers and modify status.", async () => {
+        const gasProducer = await GasProducer.deployed();
 
 
         WELL.ACCOUNT = accounts[2];
@@ -44,7 +44,7 @@ contract("Treasure-Oil", async (accounts) => {
         const _uniqueId = WELL.UNIQUE_ID;
 
         /* Send the transaction and call the Add Producer function of the contract */
-        const stepAddProducer = await oilProducer.addProducer(_uniqueId, _producer, {from: WELL.ACCOUNT});
+        const stepAddProducer = await gasProducer.addProducer(_uniqueId, _producer, {from: WELL.ACCOUNT});
 
         for (let i = 0; i < stepAddProducer.logs.length; i++) {
             if (stepAddProducer.logs[i].event === "AddProducer") {
@@ -56,7 +56,7 @@ contract("Treasure-Oil", async (accounts) => {
 
         const _newStatus = 1;
         /* Send the transaction and call the Set Producer Status function of the contract */
-        const stepSetProducerStatus = await oilProducer.setProducerStatus(_uniqueId, _newStatus, {from: accounts[0]});
+        const stepSetProducerStatus = await gasProducer.setProducerStatus(_uniqueId, _newStatus, {from: accounts[0]});
 
         for (let i = 0; i < stepSetProducerStatus.logs.length; i++) {
             if (stepSetProducerStatus.logs[i].event === "SetProducerStatus") {
@@ -68,22 +68,22 @@ contract("Treasure-Oil", async (accounts) => {
         }
 
         /* Call the getProducer function of the contract */
-        const resultProducer = await oilProducer.getProducer.call(_uniqueId);
+        const resultProducer = await gasProducer.getProducer.call(_uniqueId);
 
         assert.equal(resultProducer[0].toNumber(), 1);
         assert.deepEqual([resultProducer[1].nickname, resultProducer[1].owner, resultProducer[1].API, resultProducer[1].sulphur, resultProducer[1].account], _producer);
     })
 
     it("deposit expense", async () => {
-        const oilData = await OilData.deployed();
+        const gasData = await GasData.deployed();
 
-        await oilData.prepay({from: WELL.ACCOUNT, value: EXPENSE_AMOUNT.toString()});
+        await gasData.prepay({from: WELL.ACCOUNT, value: EXPENSE_AMOUNT.toString()});
     })
 
     it("register asset value request", async () => {
-        const oilData = await OilData.deployed();
+        const gasData = await GasData.deployed();
 
-        const stepRegisterAssetValueRequest = await oilData.registerAssetValueRequest({from: accounts[0]});
+        const stepRegisterAssetValueRequest = await gasData.registerAssetValueRequest({from: accounts[0]});
 
         /* Event test */
         for (let i = 0; i < stepRegisterAssetValueRequest.logs.length; i++) {
@@ -97,13 +97,13 @@ contract("Treasure-Oil", async (accounts) => {
 
     for (let i = 0; i < PRODUCTION_DATA.length; i++) {
         it("send Asset Price(" + PRODUCTION_DATA[i].DATE + ")", async () => {
-            const oilData = await OilData.deployed();
+            const gasData = await GasData.deployed();
 
             /* Data */
             const _date = PRODUCTION_DATA[i].DATE;
             const _assetPrice = PRODUCTION_DATA[i].PRICE;
 
-            const stepReceiveAssetValue = await oilData.receiveAssetValue(ASSETS.REQUEST_ID, _date, _assetPrice.toString(), {from: accounts[0]});
+            const stepReceiveAssetValue = await gasData.receiveAssetValue(ASSETS.REQUEST_ID, _date, _assetPrice.toString(), {from: accounts[0]});
 
             /* Event test */
             for (let j = 0; j < stepReceiveAssetValue.logs.length; j++) {
@@ -116,11 +116,11 @@ contract("Treasure-Oil", async (accounts) => {
             }
 
             /* query price */
-            const resultPrice = await oilData.getAssetValue.call(_date);
+            const resultPrice = await gasData.getAssetValue.call(_date);
             assert.equal(resultPrice.toNumber(), _assetPrice);
         })
         it("send production data(" + PRODUCTION_DATA[i].DATE + ")", async () => {
-            const oilData = await OilData.deployed();
+            const gasData = await GasData.deployed();
 
             /* Data */
             const _volume = PRODUCTION_DATA[i].VOLUME;
@@ -129,7 +129,7 @@ contract("Treasure-Oil", async (accounts) => {
             const _productionData = [WELL.UNIQUE_ID, 0, WELL.ACCOUNT, _volume.toString(), 0, _date, _month, '', 0, 0, 0];
 
 
-            const stepSetProductionData = await oilData.setProductionData(WELL.UNIQUE_ID, _productionData, {from: WELL.ACCOUNT})
+            const stepSetProductionData = await gasData.setProductionData(WELL.UNIQUE_ID, _productionData, {from: WELL.ACCOUNT})
 
             /* Event test */
             for(let i = 0; i < stepSetProductionData.logs.length; i++){
@@ -146,13 +146,13 @@ contract("Treasure-Oil", async (accounts) => {
     }
 
     it("set trusted production data", async () => {
-        const oilData = await OilData.deployed();
+        const gasData = await GasData.deployed();
 
         const _volume = TRUSTED_PRODUCTION_DATA.VOLUME;
         const _month = TRUSTED_PRODUCTION_DATA.MONTH;
         const _productionData = [WELL.UNIQUE_ID, 0, WELL.ACCOUNT, _volume.toString(), 0, 0, _month, '', 0, 0, 0];
 
-        const stepReceiveTrustedProductionData = await oilData.receiveTrustedProductionData(WELL.REQUEST_ID, WELL.UNIQUE_ID, _productionData, {from: accounts[0]});
+        const stepReceiveTrustedProductionData = await gasData.receiveTrustedProductionData(WELL.REQUEST_ID, WELL.UNIQUE_ID, _productionData, {from: accounts[0]});
 
         /* Event test */
         for(let i = 0; i < stepReceiveTrustedProductionData.logs.length; i++){
@@ -167,7 +167,7 @@ contract("Treasure-Oil", async (accounts) => {
     })
 
     it("clearing", async () => {
-        const oilData = await OilData.deployed();
+        const gasData = await GasData.deployed();
         const tat = await TAT.deployed();
 
         /* Data */
@@ -178,10 +178,11 @@ contract("Treasure-Oil", async (accounts) => {
         tatBalance_before = tatBalance_before.toNumber();
 
         /* Calculate Discount */
-        let discount = 9000n
+        /*let discount = 9000n
         if (WELL.API > 3110n && WELL.SULPHUR >= 500n) discount = 8500n;
         if (WELL.API <= 3110n && WELL.SULPHUR < 500n) discount = 8000n;
-        if (WELL.API <= 3110n && WELL.SULPHUR >= 500n) discount = 7500n;
+        if (WELL.API <= 3110n && WELL.SULPHUR >= 500n) discount = 7500n;*/
+        const discount = 10000n;  //No discounts on natural gas
 
         /* Calculate total minting amount and total production */
         let _pAmount = 0n;
@@ -215,14 +216,14 @@ contract("Treasure-Oil", async (accounts) => {
 
 
         /* compare production data */
-        const resultProductionData = await oilData.getProductionData.call(WELL.UNIQUE_ID, _month);
+        const resultProductionData = await gasData.getProductionData.call(WELL.UNIQUE_ID, _month);
         assert.equal(resultProductionData.uniqueId, WELL.UNIQUE_ID);
         assert.equal(resultProductionData.month, _month.toString());
         assert.equal(resultProductionData.price, _pAmount.toString());
         assert.equal(resultProductionData.amount, _pVolume.toString());
 
         /* Clearing */
-        const stepClearing = await oilData.clearing(WELL.UNIQUE_ID, _month, {from: WELL.ACCOUNT});
+        const stepClearing = await gasData.clearing(WELL.UNIQUE_ID, _month, {from: WELL.ACCOUNT});
 
         /* Event test */
         for (let i = 0; i < stepClearing.logs.length; i++) {
@@ -242,7 +243,7 @@ contract("Treasure-Oil", async (accounts) => {
         }
 
         /* Get Expense balance */
-        const resultExpense = await oilData.marginOf.call(WELL.ACCOUNT);
+        const resultExpense = await gasData.marginOf.call(WELL.ACCOUNT);
         assert.equal(resultExpense[0].toString(), (EXPENSE_AMOUNT - _expense).toString());
 
         /* Query TAT Balance */
@@ -252,7 +253,7 @@ contract("Treasure-Oil", async (accounts) => {
         assert.equal(tatBalance_after - tatBalance_before, _amount);
 
         /* Withdraw remaining expense funds */
-        await oilData.withdraw((EXPENSE_AMOUNT - _expense).toString(), {from: WELL.ACCOUNT});
+        await gasData.withdraw((EXPENSE_AMOUNT - _expense).toString(), {from: WELL.ACCOUNT});
 
         /* Output Results */
         console.log(`WELL ${WELL.UNIQUE_ID}: \n- DEVIATION: ${_deviation.toString()} \n- VOLUME: ${_volume.toString()} \n- AMOUNT: ${_amount.toString()} \n- EXPENSE: ${_expense.toString()} \n`)
