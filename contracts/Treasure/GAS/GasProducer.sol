@@ -37,10 +37,10 @@ contract GasProducer is Producer {
             keccak256(bytes(_producer.nickname)) != keccak256(bytes("")),
             "empty nickname"
         );
-        require(
+        /*require(
             _producer.API != 0 && _producer.sulphur != 0,
             "API & sulphur cant be zero"
-        );
+        );*/
 
         // initialize `Share`
         _setOwner(_uniqueId, _producer.owner);
