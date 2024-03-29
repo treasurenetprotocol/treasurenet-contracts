@@ -280,8 +280,8 @@ abstract contract ProductionData is Context, Initializable, OracleClient, IProdu
 
     function getProductionData(bytes32 _uniqueId, uint256 month) public virtual override returns (ProduceData memory){}
 
-    event ClearingReward(string treausreKind, bytes32 _uniqueId, uint256 _month, uint256 rewardAmount);
-    event ClearingPenalty(string treausreKind, bytes32 _uniqueId, uint256 _month, uint256 penaltyAmount, uint256 percent);
+    event ClearingReward(string treasureKind, bytes32 _uniqueId, uint256 _month, uint256 rewardAmount);
+    event ClearingPenalty(string treasureKind, bytes32 _uniqueId, uint256 _month, uint256 penaltyAmount, uint256 percent);
     /// @dev 进行生产数据清算，完成Mint TAT
     /// @param _uniqueId 生产商唯一ID
     /// @param _month 生产月份

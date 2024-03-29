@@ -5,7 +5,7 @@ import "./IShare.sol";
 
 interface IProducer is IShare {
     event AddProducer(bytes32 uniqueId, ProducerCore producer);
-    event SetProducerStatus(bytes32 uniqueId, ProducerStatus status);
+    event SetProducerStatus(bytes32 uniqueId, bytes32 requestId, ProducerStatus status);
 
     event Link(
         bytes32 key,
