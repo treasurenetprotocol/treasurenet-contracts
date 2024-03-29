@@ -127,10 +127,12 @@ abstract contract Producer is Initializable, IProducer, Share {
     onlyFoundationManager
     {
         //require(producerStatus(_uniqueId) != _newStatus, "status not changed");
-        require(_newStatus!=ProducerStatus.NotSet,"invalid status");
+        require(_newStatus != ProducerStatus.NotSet, "invalid status");
+
+        bytes32 requestId;
 
         if (_newStatus == ProducerStatus.Active && _productionData.getTDRequestID(_uniqueId) == bytes32("")) {
-            _productionData.registerTrustedDataRequest(_uniqueId);
+            requestId = _productionData.registerTrustedDataRequest(_uniqueId);
         }
 
         if (_newStatus == ProducerStatus.Deactive && _productionData.getTDRequestID(_uniqueId) != bytes32("")) {
@@ -139,7 +141,7 @@ abstract contract Producer is Initializable, IProducer, Share {
 
         _producerStatus[_uniqueId] = _newStatus;
 
-        emit SetProducerStatus(_uniqueId, _newStatus);
+        emit SetProducerStatus(_uniqueId, requestId, _newStatus);
     }
 
     event UpdateProducer(bytes32 uniqueId, ProducerCore _old, ProducerCore _new);
