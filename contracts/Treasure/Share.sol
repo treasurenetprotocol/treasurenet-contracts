@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "./interfaces/IShare.sol";
 
 /**
- * @dev Share为收益划分合约
+ * @dev Share is the contract for profit distribution
 */
 contract Share is IShare {
     // MAX_HOLDER except owner
@@ -37,10 +37,10 @@ contract Share is IShare {
         _owners[_uniqueId] = _owner;
     }
 
-    /// @dev 是否为Producer的所有人
-    /// @param _uniqueId 生产商(矿井)唯一ID
-    /// @param _producer 账户地址
-    /// @return bool 是否为所有人
+    /// @dev Check if the account is the owner of the producer
+    /// @param _uniqueId Unique ID of the producer (mine)
+    /// @param _producer Account address
+    /// @return bool Whether it's the owner
     function isProducerOwner(bytes32 _uniqueId, address _producer)
         public
         view
@@ -52,31 +52,31 @@ contract Share is IShare {
     // Core functions in Share Contract
 
 
-    /// @dev 最大受益人数量(包括Producer所有人)
-    /// @return uint256 数量
+    /// @dev Maximum number of shareholders (including the owner of the producer)
+    /// @return uint256 The number
     function maxShares() public pure override returns (uint256) {
         return MAX_HOLDERS+1;
     }
 
 
-    /// @dev 当前受益人数量
-    /// @param _uniqueId 生产商(矿井)唯一ID
-    /// @return uint256 数量
+    /// @dev Current number of shareholders
+    /// @param _uniqueId Unique ID of the producer (mine)
+    /// @return uint256 The number
     function totalHolders(bytes32 _uniqueId) public view override returns (uint256) {
         return _totalHolders[_uniqueId];
     }
 
-     /// @dev 当前划分出去的份额
-    /// @param _uniqueId 生产商(矿井)唯一ID
-    /// @return uint256 数量   
+    /// @dev Current shared pieces
+    /// @param _uniqueId Unique ID of the producer (mine)
+    /// @return uint256 The number  
     function totalShared(bytes32 _uniqueId) public view override returns (uint256) {
         return _totalShared[_uniqueId];
     }
 
-     /// @dev 是否为生产商收益持有人
-    /// @param _uniqueId 生产商(矿井)唯一ID
-    /// @param _holder 持有人
-    /// @return bool 是否为持有人
+    /// @dev Check if the account is a shareholder of the producer
+    /// @param _uniqueId Unique ID of the producer (mine)
+    /// @param _holder Holder's account
+    /// @return bool Whether it's a holder
     function isHolder(bytes32 _uniqueId, address _holder)
         public
         view
@@ -87,10 +87,10 @@ contract Share is IShare {
         return (h.flag == Flag.Holder);
     }
 
-     /// @dev 查询持有人信息
-    /// @param _uniqueId 生产商(矿井)唯一ID
-    /// @param _holder 持有人账户
-    /// @return Holder 持有人信息
+    /// @dev Get holder's information
+    /// @param _uniqueId Unique ID of the producer (mine)
+    /// @param _holder Holder's account
+    /// @return Holder Holder's information
     function holder(bytes32 _uniqueId, address _holder)
         public
         view
@@ -100,10 +100,10 @@ contract Share is IShare {
         return _holders[_uniqueId][_holder];
     }
 
-    /// @dev 设置持有人
-    /// @param _uniqueId 生产商(矿井)唯一ID
-    /// @param _holderAddrs 持有人账户数组
-    /// @param _ratios 持有比例(100)数组
+    /// @dev Set holders
+    /// @param _uniqueId Unique ID of the producer (mine)
+    /// @param _holderAddrs Holder's account array
+    /// @param _ratios Share ratio (100) array
     function setHolders(
         bytes32 _uniqueId,
         address[] memory _holderAddrs,
@@ -153,12 +153,12 @@ contract Share is IShare {
  
 
 
-    /// @dev 将持有份额转给其他人
-    /// @param _uniqueId 生产商(矿井)唯一ID
-    /// @param _toHolder 接收者
-    /// @param _ratio 转移份额数量
-    /// @return uint256 发送者最新份额
-    /// @return uint256 接受者最新份额
+    /// @dev Transfer the holding shares to another person.
+    /// @param _uniqueId Unique ID of the producer (mine)
+    /// @param _toHolder Recipient
+    /// @param _ratio Number of shares to transfer
+    /// @return uint256 Sender's latest share
+    /// @return uint256 Recipient's latest share
     function splitHolder(bytes32 _uniqueId,address _toHolder,uint256 _ratio) public override returns(uint256,uint256)  {
         require(_toHolder != address(0),"receiver must not be zero address");
         require(_ratio <= MAX_PIECES,"ratio exceedes MAX_PIECE(100)");
@@ -195,9 +195,9 @@ contract Share is IShare {
         return (sender.ratio,receiver.ratio);
     }
 
-    /// @dev 删除持有人
-    /// @param _uniqueId 生产商(矿井)唯一ID
-    /// @param _holder 持有人地址
+    /// @dev Delete a holder.
+    /// @param _uniqueId Unique ID of the producer (mine)
+    /// @param _holder Holder's address
     function deleteHolder(bytes32 _uniqueId, address _holder)
         public
         override
@@ -221,9 +221,10 @@ contract Share is IShare {
         _totalHolders[_uniqueId] -= 1;
     }
 
-    /// @dev 计算各持有人的收益
-    /// @param _uniqueId 生产商(矿井)唯一ID
-    /// @param total 总收益
+    
+    /// @dev Calculate the earnings for each holder.
+    /// @param _uniqueId Unique ID of the producer (mine)
+    /// @param total Total earnings
     function calculateRewards(bytes32 _uniqueId,uint256 total) public view override returns(address[] memory,uint256[] memory) {
         address[] memory accounts = new address[](_totalHolders[_uniqueId]+1);
         uint256[] memory amounts = new uint256[](_totalHolders[_uniqueId]+1);

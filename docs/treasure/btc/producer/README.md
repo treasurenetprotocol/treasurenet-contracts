@@ -2,43 +2,43 @@
 
 ## Functions
 
-### addProducer(bytes32 _uniqueId, ProducerCore _producer)
+### addProducer(bytes32 \_uniqueId, ProducerCore \_producer)
 
 Adds a new producer to the blockchain
 
 - `_uniqueId`: The unique identifier for the producer
 - `_producer`: The producer object containing the producer's details
 
-### setProducerStatus(bytes32 _uniqueId, ProducerStatus _newStatus)
+### setProducerStatus(bytes32 \_uniqueId, ProducerStatus \_newStatus)
 
 Sets the status of a producer
-> [!WARNING]  
+> \[!WARNING\]  
 > only **Foundation Manager** can send this request.
 
 - `_uniqueId`: The unique identifier for the producer
 - `_newStatus`: The new status of the producer
 
-### updateProdcuer(bytes32 _uniqueId, ProducerCore _producer)
+### updateProdcuer(bytes32 \_uniqueId, ProducerCore \_producer)
 
 Updates the details of a producer
-> [!WARNING]  
+>\[!WARNING\]  
 > only **Producer's owner** can send this request.
 > Cannot change producer owner
 
 - `_uniqueId`: The unique identifier for the producer
 - `_producer`: The producer object containing the producer's details
 
-### producerStatus(bytes32 _uniqueId) -> ProducerStatus
+### producerStatus(bytes32 \_uniqueId) -> ProducerStatus
 
 Returns the status of a producer
 
 - `_uniqueId`: The unique identifier for the producer
 - `ProducerStatus`: The status of the producer
 
-### getProducer(bytes32 _uniqueId) -> (ProducerStatus, ProducerCore)
+### getProducer(bytes32 \_uniqueId) -> (ProducerStatus, ProducerCore)
 
 Returns the details of a producer
-> [!WARNING]
+> \[!WARNING\]
 > If the Producer's status is NotSet then all return values will be empty.
 
 - `_uniqueId`: The unique identifier for the producer

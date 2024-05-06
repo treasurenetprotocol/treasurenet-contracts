@@ -8,6 +8,15 @@ import "@openzeppelin/contracts/utils/Timers.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 contract EthProducer is Producer {
+    /**
+     * @dev Initialize the contract with required parameters.
+     * @param _mulSigContract Address of the multi-signature contract.
+     * @param _roleContract Address of the roles contract.
+     * @param _treasureKind The type of treasure this producer handles.
+     * @param _productionDataContract Address of the production data contract.
+     * @param _dappNames Array of names of dapps.
+     * @param _payees Array of payee addresses.
+     */
     function initialize(
         address _mulSigContract,
         address _roleContract,
@@ -26,6 +35,11 @@ contract EthProducer is Producer {
         );
     }
 
+    /**
+     * @dev Execute logic before adding a new producer.
+     * @param _uniqueId The unique ID of the producer.
+     * @param _producer The producer details.
+     */
     function _beforeAddProducer(
         bytes32 _uniqueId,
         ProducerCore memory _producer

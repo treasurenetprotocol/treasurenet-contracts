@@ -5,7 +5,7 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-/// @title 角色管理合约
+/// @title Role management contract
 /// @author bjwswang
 contract Roles is Initializable, OwnableUpgradeable, AccessControlEnumerable {
     bytes32 public constant ADMIN = keccak256("ADMIN");
@@ -15,10 +15,11 @@ contract Roles is Initializable, OwnableUpgradeable, AccessControlEnumerable {
 
     address private _mulSig;
 
-    /// @dev 初始化角色管理合约
-    /// @param _mulSigContract 多签合约地址
-    /// @param managers  管理员账户(FOUNDATION_MANAGER)
-    /// @param feeders 预言机数据供应方(FEEDER)
+ /// @dev Initializes the role management contract
+    /// @param _mulSigContract The address of the multisig contract
+    /// @param managers The accounts of administrators (FOUNDATION_MANAGER)
+    /// @param auctionManagers The accounts of auction managers (AUCTION_MANAGER)
+    /// @param feeders The accounts of data feeders (FEEDER)
     function initialize(
         address _mulSigContract,
         address[] memory managers, // initialize manager
