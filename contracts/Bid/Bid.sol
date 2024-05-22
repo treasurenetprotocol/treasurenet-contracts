@@ -42,9 +42,9 @@ contract Bid is Initializable, OwnableUpgradeable {
 
     receive() external payable {}
 
-    /* 是否已经进行过bonus stake */
+    /* Has the bonus stake been conducted */
     function isTATBider(address account) public view returns (bool){
-        /* 超出周期等待触发的情况 */
+        /* Waiting for trigger situation beyond the cycle */
         if (block.number > _startBlock + ROUND_BLOCK) {
             return false;
         }
@@ -53,11 +53,11 @@ contract Bid is Initializable, OwnableUpgradeable {
 
     /* Check how much TAT you have invested */
     function mybidAmount() public view returns (uint256){
-        /* 用户不存在的情况 */
+        /* The user does not exist */
         if (bidAmount[msg.sender] == 0) {
             return 0;
         }
-        /* 超出周期等待触发的情况 */
+        /* Waiting for trigger situation beyond the cycle */
         if (block.number > _startBlock + ROUND_BLOCK) {
             return 0;
         }
@@ -109,12 +109,13 @@ contract Bid is Initializable, OwnableUpgradeable {
     /* Query List */
     function bidderList() public view returns (BiderList[] memory, uint256, uint256){
         uint256 _block = _startBlock;
-        /* 超出周期等待触发的情况 */
+        /* Situation where waiting for trigger beyond the cycle */
         if (block.number > _startBlock + ROUND_BLOCK) {
             BiderList[] memory _empty = new BiderList[](0);
             _block = _startBlock + (block.number - _startBlock) / ROUND_BLOCK * ROUND_BLOCK;
             return (_empty, 0, _block);
         }
+        // bid TAT records
         BiderList[] memory list = new BiderList[](TATBiders.length);
         for (uint256 i = 0; i < TATBiders.length; i++) {
             list[i].bider = TATBiders[i];

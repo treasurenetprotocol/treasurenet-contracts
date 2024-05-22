@@ -278,7 +278,7 @@ contract AirDrop is Initializable, OwnableUpgradeable {
             }
             else {
                 amount = _totalPerMonth[i] * actualRatio / 100 / 1e6;
-                //1e6 actualRatio 小数问题 从第二期开始
+                //1e6 actualRatio 1e6 decimal issue,from the second period onwards
             }
             totalClaimable = totalClaimable + amount;
         }
@@ -430,7 +430,7 @@ contract AirDrop is Initializable, OwnableUpgradeable {
         return currProposalId;
     }
 
-    // 发送提议
+    // send the proposal
     event SendProposal(
         uint256 proposalId,
         address proposer,
@@ -439,20 +439,20 @@ contract AirDrop is Initializable, OwnableUpgradeable {
         uint256[] ratios
     );
 
-    //
+    //allows the contract deployer to submit proposals to the contract
     function propose(
         ProposalPurpose purpose,
         address[] memory vips,
         uint256[] memory ratios
     ) public returns (uint256) {
         require(vips.length == ratios.length, "vips and ratios must have same length");
-        //
+        //Initialize temporary variable to store the total ratios
         uint256 tempTotal = _totalRatios;
         for (uint256 i = 0; i < vips.length; i++) {
             require(vips[i] != address(0), "has zero vip address");
             /*require(ratios[i] <= 100, "ratio must <= 100");*/
             require(ratios[i] <= 100 * 1e6, "ratio must <= 100 * 1e6");
-            //
+            //Get the current ratio for the VIP address
             uint256 currRatio = _vips[vips[i]];
             tempTotal = tempTotal - currRatio + ratios[i];
         }

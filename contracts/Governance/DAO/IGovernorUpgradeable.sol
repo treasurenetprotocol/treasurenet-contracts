@@ -212,7 +212,7 @@ abstract contract IGovernorUpgradeable is Initializable, IERC165Upgradeable {
      *
      * Emits a {ProposalExecuted} event.
      *
-     * Note: some module can modify the requirements for execution, for example by adding an additional timelock.
+     * Note: some module can modify the requirements for execution, for example by adding an additional timelock
      */
     function execute(
         address[] memory targets,
