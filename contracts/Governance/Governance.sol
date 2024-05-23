@@ -5,7 +5,7 @@ import "./IRoles.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-/// @title Treasurenet的治理合约
+/// @title Treasurenet's governance contract
 /// @author bjwswang
 contract Governance is OwnableUpgradeable {
     
@@ -22,18 +22,18 @@ contract Governance is OwnableUpgradeable {
 
     mapping(bytes32 => Treasure) private _treasures;
 
-     /// @dev Treasure核心数据结构，代表某类似资产，如OIL/GAS/ETHER
+     /// @dev Treasure's core data structure, representing a similar asset, such as OIL/GAS/ETHER
     struct Treasure {
         bytes32 Kind;
         address ProducerContract;
         address ProductionDataContract;
     }
 
-     /// @dev 用于Governance合约的初始化
-     /// @param _daoContract DAO合约地址
-     /// @param _mulSigContract 多签合约地址
-     /// @param _roleContract 角色管理合约地址
-     /// @param _parameterInfoContract 参数管理合约地址
+     /// @dev Used for the initialization of the Governance contract
+     /// @param _daoContract DAO contract address
+     /// @param _mulSigContract Multisig contract address
+     /// @param _roleContract Role management contract address
+     /// @param _parameterInfoContract Parameter management contract address
     function initialize(
         address _daoContract,
         address _mulSigContract,
@@ -67,19 +67,19 @@ contract Governance is OwnableUpgradeable {
         _;
     }
     
-     /// @dev 返回当前Governance多钱合约通过的阈值
-     /// @return 阈值
+     /// @dev Return the current threshold set by the Governance multisig contract
+     /// @return uint256 threshold
     function fmThreshold() public view returns (uint256) {
         return _role.getRoleMemberCount(FOUNDATION_MANAGER) / 2 + 1;
     }
 
     event AddTreasure(string treasureType,address producerContract,address produceDataContract);
-     /// @dev 用于添加新的Treasure资产(此方法仅允许从MulSig合约调用)
+     /// @dev Used to add new Treasure assets (this method can only be called from the Multisig contract)
      ///   - Events:
      ///    - event AddTreasure(string treasureType,address producerContract,address produceDataContract);
-     /// @param _treasureType 资产名称
-     /// @param _producer 资产对应的生产商管理合约地址
-     /// @param _productionData 资产对应的生产数据管理合约地址
+     /// @param _treasureType Asset name
+     /// @param _producer Management contract address corresponding to the asset's producer
+     /// @param _productionData Management contract address corresponding to the asset's production data
     function addTreasure(
         string memory _treasureType,
         address _producer,
@@ -106,11 +106,10 @@ contract Governance is OwnableUpgradeable {
         return true;
     }
 
-
-    /// @dev 用于通过Treasure的资产类型查询资产对应的合约地址
-    /// @param _treasureType 资产名称
-    /// @return address 生产商管理合约地址
-    /// @return address 生产数据管理合约地址
+    /// @dev Used to query the contract address corresponding to the asset type of Treasure
+    /// @param _treasureType Asset name
+    /// @return address Producer management contract address
+    /// @return address Production data management contract address
     function getTreasureByKind(string memory _treasureType) public view returns (address, address) {
         bytes32 kind = keccak256(bytes(_treasureType));
         require(_treasures[kind].ProducerContract != address(0), "treasure not found");

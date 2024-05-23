@@ -2,12 +2,19 @@
 pragma solidity ^0.8.0;
 
 interface USTNInterface{
+    // Allows a bidder to place a bid and deduct the corresponding cost from their balance
     function bidCost(address bider, uint amount)external returns(bool);
 
+    // Refunds a bid amount back to the bidder.
     function bidBack(address bider, uint amount)external returns(bool);
 
     function burn(address account, uint256 tokens)external returns (bool);
 
+    /**
+     * @dev Reduces the total supply of tokens.
+     * @param amount The amount to reduce from the total supply.
+     * @return bool True if the reduction was successful, revert otherwise.
+     */
     function reduceTotalSupply(uint amount)external returns(bool);
 
     function addTotalSupply(uint amount)external returns(bool);

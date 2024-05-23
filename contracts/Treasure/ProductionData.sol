@@ -15,11 +15,12 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
+
 /**
- * @dev ProductionData为核心的生产数据管理合约，实现了
- *    - 可信数据源，发送的AssetValue
- *    - 可信数据源，发送的可信生产数据
- *    - 生产商，发送的生产数据
+ * @dev ProductionData is the core contract for managing production data, implementing:
+ *    - Trusted data source: Sending AssetValue
+ *    - Trusted data source: Sending trusted production data
+ *    - Producer: Sending production data
 */
 abstract contract ProductionData is Context, Initializable, OracleClient, IProductionData, Expense {
     bytes32 public constant FEEDER = keccak256("FEEDER");
@@ -52,13 +53,13 @@ abstract contract ProductionData is Context, Initializable, OracleClient, IProdu
     mapping(uint256 => IProductionData.ProduceData[]) internal _uploadedProduceData;
     Counters.Counter internal _entityCounter;
 
-    /// @dev 合约初始化
-    /// @param _treasureKind 资产类型
-    /// @param _oracleContract 预言机合约
-    /// @param _rolesContract 角色管理合约
-    /// @param _parameterInfoContract  平台配置信息管理合约
-    /// @param _producerContract 生产商管理合约
-    /// @param _tatContract TAT合约
+    /// @dev Contract initialization
+    /// @param _treasureKind Asset type
+    /// @param _oracleContract Oracle contract address
+    /// @param _rolesContract Role management contract address
+    /// @param _parameterInfoContract Platform configuration information management contract address
+    /// @param _producerContract Producer management contract address
+    /// @param _tatContract TAT contract address
     function __ProductionDataInitialize(
         string memory _treasureKind,
         address _oracleContract,
@@ -104,7 +105,7 @@ abstract contract ProductionData is Context, Initializable, OracleClient, IProdu
 
     event RegisterAssetValueRequest(string kind, bytes32 requestid);
     /** Resource asset value management */
-    /// @dev 注册AssetValue可信数据请求(向Oracle)
+    /// @dev Registering the request for trusted AssetValue (to Oracle)
     /// @return bytes32 request id
     function registerAssetValueRequest() public returns (bytes32) {
         require(_requestIdToPullAssetValue == bytes32(""), "already registerd");
@@ -119,8 +120,8 @@ abstract contract ProductionData is Context, Initializable, OracleClient, IProdu
     }
 
     event CancleAssetValueRequest(string kind, bytes32 requestId);
-    /// @dev 取消资产价格请求(向Oracle)
-    /// @return bool 请求是否成功
+    /// @dev Canceling the request for asset price (to Oracle)
+    /// @return bool whether the request was successful
     function cancelAssetValueRequest()
     external
     override
@@ -137,10 +138,10 @@ abstract contract ProductionData is Context, Initializable, OracleClient, IProdu
     }
 
     event ReceiveAssetValue(string treasureKind, uint256 date, uint256 value);
-    /// @dev 接收AssetValue可信数据(FEEDER)
-    /// @param _requestId 预言机请求id
-    /// @param _date value的日期
-    /// @param _value value值
+    /// @dev Receiving trusted AssetValue data (from FEEDER)
+    /// @param _requestId Oracle request id
+    /// @param _date Date of value
+    /// @param _value AssetValue
     function receiveAssetValue(
         bytes32 _requestId,
         uint256 _date,
@@ -171,9 +172,9 @@ abstract contract ProductionData is Context, Initializable, OracleClient, IProdu
         }
     }
 
-    /// @dev 获取某日期的Asset Value
-    /// @param _date value的日期
-    /// @return uint256 value值
+    /// @dev Get Asset Value for a specific date
+    /// @param _date Date of value
+    /// @return uint256 AssetValue
     function getAssetValue(uint256 _date) public override returns (uint256) {
         return _getAssetValue(_date);
     }
@@ -209,9 +210,9 @@ abstract contract ProductionData is Context, Initializable, OracleClient, IProdu
     /** Resource Trusted data management*/
 
     event RegisterTrustedDataRequest(string kind, bytes32 uniqueId, bytes32 requestid);
-    /// @dev 注册生产数据的可信数据请求(向Oracle)
-    /// @param _uniqueId 生产商唯一ID
-    /// @return bytes32 Oracle请求request id
+    /// @dev Registering the request for trusted production data (to Oracle)
+    /// @param _uniqueId Producer unique ID
+    /// @return bytes32 Oracle request ID
     function registerTrustedDataRequest(bytes32 _uniqueId)
     external
     override
@@ -235,9 +236,9 @@ abstract contract ProductionData is Context, Initializable, OracleClient, IProdu
     }
 
     event CancleTrustedDataRequest(string kind, bytes32 uniqueId, bytes32 requestId);
-    /// @dev 取消生产数据的可信数据请求(向Oracle)
-    /// @param _uniqueId 生产商唯一ID
-    /// @return bool 请求是否成功
+    /// @dev Canceling the request for trusted production data (to Oracle)
+    /// @param _uniqueId Producer unique ID
+    /// @return bool whether the request was successful
     function cancelTrustedDataRequest(bytes32 _uniqueId)
     external
     override
@@ -256,9 +257,9 @@ abstract contract ProductionData is Context, Initializable, OracleClient, IProdu
     }
 
     event TrustedProductionData(string treasureKind, bytes32 uniqueId, uint256 month, uint256 amount);
-    /// @dev 接收可信生产数据请求
-    /// @param _requestId 可信数据请求ID
-    /// @param _uniqueId 生产商唯一ID
+    /// @dev Receiving trusted production data request
+    /// @param _requestId Trusted data request ID
+    /// @param _uniqueId Producer unique ID
     function receiveTrustedProductionData(
         bytes32 _requestId,
         bytes32 _uniqueId,
@@ -268,9 +269,9 @@ abstract contract ProductionData is Context, Initializable, OracleClient, IProdu
     /* Resource untrusted produce data*/
 
     event ProducerProductionData(string treasureKind, bytes32 uniqueId, uint256 month, uint256 date, uint256 amount, uint256 price);
-    /// @dev 生产商主动上传生产数据
-    /// @param _uniqueId 生产商唯一ID
-    /// @param _produceData 生产数据
+    /// @dev Producers actively upload production data
+    /// @param _uniqueId Producer unique ID
+    /// @param _produceData Production data
     function setProductionData(bytes32 _uniqueId, ProduceData memory _produceData)
     public
     virtual
@@ -282,9 +283,9 @@ abstract contract ProductionData is Context, Initializable, OracleClient, IProdu
 
     event ClearingReward(string treasureKind, bytes32 _uniqueId, uint256 _month, uint256 rewardAmount);
     event ClearingPenalty(string treasureKind, bytes32 _uniqueId, uint256 _month, uint256 penaltyAmount, uint256 percent);
-    /// @dev 进行生产数据清算，完成Mint TAT
-    /// @param _uniqueId 生产商唯一ID
-    /// @param _month 生产月份
+    /// @dev Conducting production data clearing, Mint TAT upon completion
+    /// @param _uniqueId Producer unique ID
+    /// @param _month Production month
     function clearing(bytes32 _uniqueId, uint256 _month) public override onlyWhenActive(_uniqueId) {
         _beforeClearing(_uniqueId);
         _clearing(_uniqueId, _month);

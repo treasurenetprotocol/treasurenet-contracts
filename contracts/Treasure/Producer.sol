@@ -10,11 +10,11 @@ import "./interfaces/IProducer.sol";
 import "./Share.sol";
 
 /**
- * @dev Producer为核心的生产商管理合约，实现了
- *    - 生产商管理: 增加/修改生产商
- *    - 生产商收益划分: Share
- *    - 与Otter Stream挂钩
-*/
+ * @dev Core contract for managing producers, implementing:
+ *    - Producer management: Adding/modifying producers
+ *    - Producer revenue sharing: Share
+ *    - Integration with Otter Stream
+ */
 abstract contract Producer is Initializable, IProducer, Share {
     using SafeCast for uint256;
 
@@ -27,17 +27,17 @@ abstract contract Producer is Initializable, IProducer, Share {
     mapping(bytes32 => ProducerCore) private _producers;
     mapping(bytes32 => ProducerStatus) private _producerStatus;
 
-    // _producerTotalOccupied 记录此生产商(井)被通过DApp的Stream占用的比例 < 100
+    // _producerTotalOccupied records the proportion occupied by streams through DApps for each producer (well), < 100
     mapping(bytes32 => uint256) private _producerTotalOccupied;
 
     mapping(bytes32 => address) private _dapps;
 
     IProductionData private _productionData;
 
-    /// @dev 合约初始化
-    /// @param _roleContract 角色管理合约
-    /// @param _assetType 资产名称
-    /// @param _productionDataContract 生产数据管理合约
+    /// @dev Contract initialization
+    /// @param _mulSigContract Multi-signature contract address
+    /// @param _roleContract Role management contract address
+    /// @param _productionDataContract Production data management contract address
     function __ProducerInitialize(
         address _mulSigContract,
         address _roleContract,
@@ -78,11 +78,11 @@ abstract contract Producer is Initializable, IProducer, Share {
         _;
     }
 
-    /// @dev 添加生产商(only FOUNDATION_MANAGER)
+    /// @dev Add a producer (only FOUNDATION_MANAGER)
     /// - Event
     ///     event AddProducer(bytes32 uniqueId,ProducerCore producer);
-    /// @param _uniqueId 生产商唯一ID
-    /// @param _producer 生产商信息
+    /// @param _uniqueId Unique ID of the producer
+    /// @param _producer Producer information
     function addProducer(bytes32 _uniqueId, ProducerCore memory _producer)
     public
     override
@@ -111,11 +111,11 @@ abstract contract Producer is Initializable, IProducer, Share {
         _producerStatus[_uniqueId] = ProducerStatus.NotSet;
     }
 
-    /// @dev 更新生产商状态(only FOUNDATION_MANAGER)
+    /// @dev Update producer status (only FOUNDATION_MANAGER)
     /// - Event
     ///      event SetProducerStatus(bytes32 uniqueId,ProducerStatus status);
-    /// @param _uniqueId 生产商唯一ID
-    /// @param _newStatus 新状态
+    /// @param _uniqueId Unique ID of the producer
+    /// @param _newStatus New status
     // enum ProducerStatus {
     //     NotSet,
     //     Active,
@@ -145,11 +145,11 @@ abstract contract Producer is Initializable, IProducer, Share {
     }
 
     event UpdateProducer(bytes32 uniqueId, ProducerCore _old, ProducerCore _new);
-    /// @dev 更新生产商信息 (only FOUNDATION_MANAGER)
+    /// @dev Update producer information (only FOUNDATION_MANAGER)
     /// - Event
     ///       event UpdateProducer(bytes32 uniqueId,ProducerCore _old ,ProducerCore _new);
-    /// @param _uniqueId 生产商唯一ID
-    /// @param _producer 生产商信息
+    /// @param _uniqueId Unique ID of the producer
+    /// @param _producer Producer information
     /// struct ProducerCore {
     ///     string nickname;
     ///     address owner;
@@ -171,16 +171,16 @@ abstract contract Producer is Initializable, IProducer, Share {
         _producers[_uniqueId] = _producer;
     }
 
-    /// @dev 获取生产商状态
-    /// @param _uniqueId 生产商唯一ID
-    /// @return ProducerStatus 生产商状态
+    /// @dev Get producer status
+    /// @param _uniqueId Unique ID of the producer
+    /// @return ProducerStatus Producer status
     function producerStatus(bytes32 _uniqueId) public view override returns (ProducerStatus) {
         return _producerStatus[_uniqueId];
     }
 
-    /// @dev 获取生产商信息和状态
-    /// @param _uniqueId 生产商唯一ID
-    /// @return ProducerStatus 生产商状态
+    /// @dev Get producer information and status
+    /// @param _uniqueId Unique ID of the producer
+    /// @return ProducerStatus Producer status
     /// @return ProducerCore
     function getProducer(bytes32 _uniqueId)
     public
@@ -196,10 +196,10 @@ abstract contract Producer is Initializable, IProducer, Share {
     }
 
     event RegisterDAppConnect(string dap, address payee, bytes32 dappId);
-    /// @dev 注册DApp
-    /// @param dapp DApp的名称
-    /// @param payee DApp的收款地址
-    /// @return bytes32 DApp的id
+    /// @dev Register a DApp
+    /// @param dapp Name of the DApp
+    /// @param payee Payee address of the DApp
+    /// @return bytes32 ID of the DApp
     function registerDAppConnect(string memory dapp, address payee) external override onlyMulSig returns (bytes32) {
         require(keccak256(bytes(dapp)) != keccak256(bytes("")), "empty dapp name");
         require(payee != address(0), "empty DApp payee");
@@ -216,10 +216,10 @@ abstract contract Producer is Initializable, IProducer, Share {
         return payee;
     }
 
-    /// @dev 链接Otter Stream
-    /// @param _uniqueIds 生产商唯一ID数组
-    /// @param _key 验证码
-    /// @param _dappId DApp的ID
+    /// @dev Link Otter Stream
+    /// @param _uniqueIds Array of unique IDs of producers
+    /// @param _key Verification code
+    /// @param _dappId ID of the DApp
     function link(bytes32[] memory _uniqueIds, bytes32 _key, bytes32 _dappId) public override {
         require(_uniqueIds.length > 0, "at least 1 uniqueId is required");
         require(_dapps[_dappId] != address(0), "dapp with this id not found");

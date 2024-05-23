@@ -10,14 +10,14 @@ contract AirDrop is Initializable, OwnableUpgradeable {
     // BoardDirector
     address[] private _boardDirectors;
 
-    // 两种用户类型: 基金会和VIP用户
+    // Two types of users: Foundation and VIP users
     enum Role {
         Unknown,
         FOUNDATION,
         VIP
     }
 
-    // 基金会提取阶段
+    // Foundation withdrawal stage
     enum ClaimStage {
         StageUnknown,
         Stage1,
@@ -32,33 +32,33 @@ contract AirDrop is Initializable, OwnableUpgradeable {
     uint256 private constant AirDrop_TIMELOCK = 5 minutes;
     uint256 private constant RELEASE_PERIODS = 12;
 
-    // 不同阶段授予基金会的UNIT
+    // UNIT granted to the foundation at different stages
     mapping(ClaimStage => uint256) private _toFoundation;
-    // 基金会可提取(payable)账户
+    // Foundation payable account
     address private _foundation;
 
-    // 初始授予VIP的总量
+    // Initial total amount granted to VIPs
     uint256 private _remainedToVips;
-    // 每个月的空投总量(授予VIP)
+    // Monthly airdrop total amount (granted to VIPs)
     mapping(uint256 => uint256) private _totalPerMonth;
 
-    // VIP账户 => 领取比例
+    // VIP account => Claim ratio
     mapping(address => uint256) private _vips;
 
     // vip => month => ratio
-    // 记录VIP的收益月份历史领取比例
+    // Record the historical claim ratio of monthly earnings for VIPs
     mapping(address => mapping(uint256 => uint256)) private _vipHistoryRatios;
-    // 记录VIP的收益月份历史是否改变过
+    // Record whether the historical claim ratio of monthly earnings for VIPs has change
     mapping(address => mapping(uint256 => bool)) private _vipChangedAtMonth;
 
     address[] private _vipAccs;
 
     uint256 private _totalRatios;
-    // 记录VIP账户当前提取到的月份，初始为0，即从未提取
+    // Record the current month of withdrawal for the VIP account, starting at 0, meaning never withdrawn
     mapping(address => uint256) private _vipClaimedMonth;
-    // VIP当前已经提取的总量
+    // Total amount already withdrawn by VIPs
     mapping(address => uint256) private _vipClaimedAmount;
-    // VIP可提取开始时间
+    // Start time for VIP withdrawals
     uint256 private _startAt;
 
     // Proposal with MulSig
@@ -82,21 +82,21 @@ contract AirDrop is Initializable, OwnableUpgradeable {
         require(vips.length != 0, "zero vips accounts");
         require(vips.length == ratios.length, "vips.length must equal to ratios.length");
 
-        // 基金会3000w，第一阶段直接授予1500w
+        // The foundation has 30 million, with 15 million granted directly in the first stage
         /*_toFoundation[ClaimStage.Stage1] = 15000000 * 1e18;*/
         /* for test 15*/
         _toFoundation[ClaimStage.Stage1] = 15 * 1e18;
         // _timeline[ClaimStage.Stage1] = block.timestamp;
-        // 第二阶段为第一阶段的3个月后，此时解锁另外的1500w
+        // The second stage occurs 3 months after the first stage, unlocking an additional 15 million
         /*_toFoundation[ClaimStage.Stage2] = 15000000 * 1e18;*/
         /* for test 15 */
         _toFoundation[ClaimStage.Stage2] = 15 * 1e18;
         // _timeline[ClaimStage.Stage2] = block.timestamp + 90 days;
 
-        // 空投开始时间为当前合约初始化时间
+        // The airdrop starts at the current contract initialization time
         _startAt = block.timestamp;
 
-        // 授予VIP客户6000w
+        // Grant 60 million to VIP customers
         /* _remainedToVips = 60000000 * 1e18;*/
         /* for test 60 */
         _remainedToVips = 60 * 1e18;
@@ -123,7 +123,7 @@ contract AirDrop is Initializable, OwnableUpgradeable {
 
             _vips[vips[i]] = ratios[i];
 
-            // 首月领取比例
+            // First-month claim ratio
             _vipHistoryRatios[vips[i]][1] = ratios[i];
             _vipChangedAtMonth[vips[i]][1] = true;
 
@@ -227,11 +227,11 @@ contract AirDrop is Initializable, OwnableUpgradeable {
             currentStage = ClaimStage.Stage2;
         }
         uint256 amount;
-        // 判断当前阶段是否已经提取
+        // Determine whether the current stage has been withdrawn
         if (_toFoundation[currentStage] > 0) {
             amount += _toFoundation[currentStage];
         }
-        // 判断阶段1是否已经提取
+        // Determine whether stage 1 has been withdrawn
         if (currentStage == ClaimStage.Stage2 && _toFoundation[ClaimStage.Stage1] > 0) {
             amount += _toFoundation[ClaimStage.Stage1];
         }
@@ -239,32 +239,32 @@ contract AirDrop is Initializable, OwnableUpgradeable {
     }
 
     function _vipClaimable(address vip) internal view returns (uint256, uint256, uint256) {
-        // 判断是否已经提取完
+        // Determine if the withdrawal has been completed
         if (_remainedToVips == 0) {
             return (0, 0, 0);
         }
 
-        // 计算从上次提取月份到当前月份之间总得可提取额度
+        // Calculate the total amount that can be withdrawn from the last withdrawal month to the current month
         uint256 current = _currentMonth();
 
-        // 最大为12
+        // The maximum month is 12
         if (current > RELEASE_PERIODS) {
             current = RELEASE_PERIODS;
         }
 
         uint256 claimedMonth = _vipClaimedMonth[vip];
-        // 判断是否已经提取到了当前月份
+        // Determine if the withdrawal has reached the current month
         if (claimedMonth == current) {
             return (0, 0, 0);
         }
 
-        // 计算从当前未提取月份到当前可提取月份之间
+        // Calculate between the current unwithdrawn month and the current withdrawable month
         uint256 totalClaimable;
         for (uint256 i = claimedMonth + 1; i <= current; i++) {
-            //计算该月份可提取的数量(该月份的可提取总量*提取比例)
+            //Calculate the amount withdrawable for that month (total amount withdrawable for that month * withdrawal ratio)
             uint256 actualRatio;
             for (uint256 j = i; j > 0; j--) {
-                // 寻找最近一次的更新，作为当前月份的真实比例
+                // Find the most recent update as the actual ratio for the current month
                 if (_vipChangedAtMonth[vip][j]) {
                     actualRatio = _vipHistoryRatios[vip][j];
                     break;
@@ -278,7 +278,7 @@ contract AirDrop is Initializable, OwnableUpgradeable {
             }
             else {
                 amount = _totalPerMonth[i] * actualRatio / 100 / 1e6;
-                //1e6 actualRatio 小数问题 从第二期开始
+                //1e6 actualRatio 1e6 decimal issue,from the second period onwards
             }
             totalClaimable = totalClaimable + amount;
         }
@@ -310,7 +310,7 @@ contract AirDrop is Initializable, OwnableUpgradeable {
         return _toFoundation[ClaimStage.Stage1];
     }
 
-    // foundationClaim用于基金会提取
+    // foundationClaimis used for foundation withdrawals
     event FoundationClaimed(address foundation, ClaimStage stage, uint256 amount);
 
     function _foundationClaim() internal returns (uint256, ClaimStage) {
@@ -340,15 +340,15 @@ contract AirDrop is Initializable, OwnableUpgradeable {
         uint256
     )
     {
-        // 计算当前可提取额度
+        // Calculate the current withdrawable amount
         (uint256 amount, uint256 sinceMonth, uint256 toMonth) = _vipClaimable(msg.sender);
 
         require(amount > 0, "this vip is unclaimable");
 
-        //更新当前的未提取额
+        // Update the current unwithdrawn amount
         _remainedToVips = _remainedToVips - amount;
 
-        // 更新VIP的提取记录
+        // Update the withdrawal records for VIPs
         _vipClaimedMonth[msg.sender] = toMonth;
         _vipClaimedAmount[msg.sender] += amount;
 
@@ -370,11 +370,11 @@ contract AirDrop is Initializable, OwnableUpgradeable {
     function receiveIntermidiateFund() public payable {
         require(msg.value > 0, "zero UNIT");
         uint256 month = _currentMonth();
-        // 当前月份在第12或者12个月后，代表空投已经结束
+        // If the current month is the 12th month or after the 12th month, it indicates that the airdrop has ended
         if (month >= RELEASE_PERIODS) {
             return;
         }
-        // 重新计算每月可提取的数量
+        // Recalculate the monthly withdrawable amount
         uint256 remainedMonths = RELEASE_PERIODS - _currentMonth();
         for (uint256 i = month + 1; i <= RELEASE_PERIODS; i++) {
             _totalPerMonth[i] = _totalPerMonth[i] + msg.value / remainedMonths;
@@ -384,7 +384,7 @@ contract AirDrop is Initializable, OwnableUpgradeable {
     }
 
     event FoundationClaimedVIPs(address account, uint256 amount);
-    // 1 年后，基金会可以提取出所有为VIPs准备的空投金
+    // After 1 year, the foundation can withdraw all the airdrop funds allocated for VIPs
     function foundationClaimVIPs() public onlyFoundation {
         require(
             _currentMonth() > RELEASE_PERIODS,
@@ -401,14 +401,14 @@ contract AirDrop is Initializable, OwnableUpgradeable {
 
     }
 
-    // 当前可提取的月份(3.1 == 3)
+    // The current withdrawable month (3.1 == 3)
     function _currentMonth() internal view returns (uint256) {
         return (block.timestamp - _startAt) / AirDrop_TIMELOCK;
     }
 
     /* Integrate with MulSig */
 
-    // 修改用户白名单和用户比例(MulSig)
+    // Modify user whitelist and user ratio(MulSig)
     enum ProposalPurpose {
         ChangeVIP
     }
@@ -417,18 +417,20 @@ contract AirDrop is Initializable, OwnableUpgradeable {
         ProposalPurpose purpose;
         address[] vips;
         uint256[] ratios;
-        // 签名数量
+        // Number of signatures
         uint8 sigCount;
-        // 执行时间
+        // Execution time
         uint256 excuteTime;
         mapping(address => uint8) signatures;
     }
 
+    //
     function _nextProposalId() internal returns (uint256) {
         currProposalId++;
         return currProposalId;
     }
 
+    // send the proposal
     event SendProposal(
         uint256 proposalId,
         address proposer,
@@ -437,19 +439,20 @@ contract AirDrop is Initializable, OwnableUpgradeable {
         uint256[] ratios
     );
 
+    //allows the contract deployer to submit proposals to the contract
     function propose(
         ProposalPurpose purpose,
         address[] memory vips,
         uint256[] memory ratios
     ) public returns (uint256) {
         require(vips.length == ratios.length, "vips and ratios must have same length");
-
+        //Initialize temporary variable to store the total ratios
         uint256 tempTotal = _totalRatios;
         for (uint256 i = 0; i < vips.length; i++) {
             require(vips[i] != address(0), "has zero vip address");
             /*require(ratios[i] <= 100, "ratio must <= 100");*/
             require(ratios[i] <= 100 * 1e6, "ratio must <= 100 * 1e6");
-
+            //Get the current ratio for the VIP address
             uint256 currRatio = _vips[vips[i]];
             tempTotal = tempTotal - currRatio + ratios[i];
         }
@@ -469,7 +472,7 @@ contract AirDrop is Initializable, OwnableUpgradeable {
         return proposalId;
     }
 
-    // 0: 都不是  1: FoundationManager 2:BoardDirector
+    // 0: UnKnown 1: FoundationManager 2:BoardDirector
     function _fmOrBd(address account) internal view returns (uint256) {
         for (uint256 i = 0; i < _fms.length; i++) {
             if (_fms[i] == account) {
@@ -493,9 +496,9 @@ contract AirDrop is Initializable, OwnableUpgradeable {
     event ProposalSucc(uint256 proposalId, uint256 executeTime);
     event ProposalSigned(uint256 proposalId, address signer);
 
-    /// @dev 由FoundationManager签发交易，同意某proposal
-    /// @param _proposalId 提议对应的ID
-    /// @return bool 请求是否成功
+    /// @dev Issued by FoundationManager, agree to a certain proposal
+    /// @param _proposalId ID corresponding to the proposal
+    /// @return bool Was the request successful?
     function signTransaction(uint256 _proposalId) public returns (bool) {
         uint256 role = _fmOrBd(msg.sender);
         require(role != 0, "only FoundationManager or BoardDirector can sign");
@@ -507,7 +510,7 @@ contract AirDrop is Initializable, OwnableUpgradeable {
         require(pro.sigCount < threshold(), "proposal already meet threshold");
         pro.sigCount++;
 
-        // 满足阈值，设置执行时间(生效时间)
+        // Meet the threshold and set the execution time (effective time)
         if (pro.sigCount == threshold()) {
             pro.excuteTime = block.timestamp + PROPOSAL_TIME_LOCK;
             emit ProposalSucc(_proposalId, pro.excuteTime);
@@ -536,8 +539,8 @@ contract AirDrop is Initializable, OwnableUpgradeable {
                 if (currRatio == 0) {
                     _vipAccs.push(pro.vips[i]);
                 }
-                // 记录历史比例
-                // 影响的是第二个周期的收益比例
+                // Record historical ratio
+                // Affects the profit ratio of the second stage
                 // |  currMonth() | curr | next  |
                 _vipHistoryRatios[pro.vips[i]][_currentMonth() + 1] = pro.ratios[i];
                 _vipChangedAtMonth[pro.vips[i]][_currentMonth() + 1] = true;

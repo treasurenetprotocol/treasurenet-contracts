@@ -15,6 +15,7 @@ contract SampleDAO is Initializable {
         _dao = dao_;
     }
 
+    // Modifier to ensure that only the DAO can call a function
     modifier onlyDAO() {
         require(msg.sender == _dao, "only dao");
         _;
@@ -24,12 +25,17 @@ contract SampleDAO is Initializable {
         return _blockReward;
     }
 
+    /**
+     * @dev Sets the block reward, can only be called by the DAO
+     * @param _newReward New block reward
+     */
     function setBlockReward(uint256 _newReward) public onlyDAO {
         uint256 old = _blockReward;
         _blockReward = _newReward;
         emit BlockRewardReset(old, _newReward);
     }
 
+    // Emitted when ETH is received by the contract
     event PayEth(uint256);
 
     function receiveEth() public payable {
