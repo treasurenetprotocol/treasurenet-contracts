@@ -10,8 +10,8 @@ import "./Stakeable.sol";
 import "../Governance/IGovernance.sol";
 
 /**
- * @dev TAT为TreasureNet ERC20 Token，实现了:
- *    - ERC20,其中mint由`production data contract`执行
+ * @dev TAT is the TreasureNet ERC20 Token, implementing:
+ *    - ERC20, where minting is performed by the production data contract
  *    - Pausable
  *    - Burnable
  *    - Stake
@@ -25,10 +25,10 @@ Stakeable
 {
     IGovernance private _governance;
 
-    /// @dev 合约初始化
-    /// @param _name Token名称
-    /// @param _symbol Token Symbol
-    /// @param _governanceContract TreasureNet的治理合约
+    /// @dev Initializes the contract
+    /// @param _name Token name
+    /// @param _symbol Token symbol
+    /// @param _governanceContract The governance contract of TreasureNet
     function initialize(
         string memory _name,
         string memory _symbol,
@@ -42,9 +42,9 @@ Stakeable
     }
 
     modifier onlyProductionDataContract(string memory _treasureKind) {
-        // check producer by group
+        // Check if the caller is the producer specified by the group
         (, address productionContract) = _governance.getTreasureByKind(_treasureKind);
-        require(_msgSender() == productionContract, "");
+        require(_msgSender() == productionContract, "Unauthorized caller");
         _;
     }
 
@@ -58,30 +58,30 @@ Stakeable
     }
 
     event TATHistory(string kind, bytes32 uniqueId, address from, address to, uint amount);
-    /// @dev mint TAT
-    /// @param _treasureKind treasure类型
-    /// @param to  tat接收账户
-    /// @param amount mint的TAT数量
+    /// @dev Mint TAT tokens
+    /// @param _treasureKind The type of treasure
+    /// @param to The recipient address of TAT tokens
+    /// @param amount The amount of TAT tokens to mint
     function mint(
         string memory _treasureKind,
         bytes32 _uniqueId,
         address to,
         uint256 amount
     ) public onlyProductionDataContract(_treasureKind) {
-        require(to != address(0), "zero address");
+        require(to != address(0), "Zero address");
         _mint(to, amount);
         emit TATHistory(_treasureKind, _uniqueId, msg.sender, to, amount);
     }
 
-    /* temp faucet */
+    /* Temp faucet */
     function faucet(address user, uint256 amount) public {
-        require(user != address(0), "zero address");
+        require(user != address(0), "Zero address");
         _mint(user, amount);
     }
 
-    /// @dev burn TAT
-    /// @param _treasureKind treasure类型
-    /// @param tokens 数量
+    /// @dev Burn TAT tokens
+    /// @param _treasureKind The type of treasure
+    /// @param tokens The amount of tokens to burn
     function burn(string memory _treasureKind, uint256 tokens)
     public
     onlyProductionDataContract(_treasureKind)
@@ -89,33 +89,33 @@ Stakeable
         _burn(_msgSender(), tokens);
     }
 
-    /// @dev 暂停TAT
+    /// @dev Pause TAT token transfers
     function pause() public onlyOwner {
         _pause();
     }
 
-    /// @dev 解除暂停TAT
+    /// @dev Unpause TAT token transfers
     function unpause() public onlyOwner {
         _unpause();
     }
 
 
-    /// @dev 质押TAT
+    /// @dev Stake TAT tokens
     ///  - Event
     ///        event Stake(address from,uint256 amount);
-    /// @param _amount 质押的TAT数量
+    /// @param _amount The amount of TAT tokens to stake
     function stake(address account, uint256 _amount) public override {
-        require(balanceOf(account) >= _amount, "stake more than you own");
+        require(balanceOf(account) >= _amount, "Stake amount exceeds balance");
         _stake(account, _amount);
         _burn(account, _amount);
     }
 
-    /// @dev 取回质押的TAT
+    /// @dev Withdraw staked TAT tokens
     /// - Event
     ///    event Withdraw(address from,uint256 amount);
-    /// @param _amount 取回的质押TAT数量
+    /// @param _amount The amount of staked TAT tokens to withdraw
     function withdraw(address account, uint256 _amount) public override {
-        require(stakeOf(account) >= _amount, "withdraw more than you staked");
+        require(stakeOf(account) >= _amount, "Withdrawal amount exceeds staked amount");
         _withdraw(account, _amount);
         _mint(account, _amount);
     }

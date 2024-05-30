@@ -8,6 +8,15 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 contract OilData is ProductionData {
     using Counters for Counters.Counter;
 
+    /**
+     * @dev Initializes the contract with required parameters.
+     * @param _treasureKind The type of treasure this contract handles.
+     * @param _oracleContract Address of the oracle contract.
+     * @param _rolesContract Address of the roles contract.
+     * @param _parameterInfoContract Address of the parameter info contract.
+     * @param _producerContract Address of the producer contract.
+     * @param _tatContract Address of the TAT contract.
+     */
     function initialize(
         string memory _treasureKind,
         address _oracleContract,
@@ -48,7 +57,7 @@ contract OilData is ProductionData {
         } else {
             // ProduceData memory data;
             _produceData.account = thisProducer.owner;
-            _produceData.amount = _produceData.amount; //TODO: 两边一样
+            _produceData.amount = _produceData.amount; //TODO: The same on both sides
             _trustedProduceData[_produceData.month][_uniqueId] = _produceData;
         }
 
@@ -78,8 +87,8 @@ contract OilData is ProductionData {
             thisProducer.sulphur
         );
 
-        // 市场价值
-        /* 小数设计 amount 入参放大10000 单价入参放大10000 折扣放大10000*/
+        // Market value
+        /* Decimal design: Multiply the 'amount' parameter by 10000 for the input, and multiply the unit price by 10000 for the input */
         uint256 price = ((_produceData.amount *
             _getAssetValue(_produceData.date) *
             discount) * 1e18) /
@@ -186,11 +195,11 @@ contract OilData is ProductionData {
             uint256 deviation = ((uploaded.amount - trusted.amount) *
                 100 *
                 100) / trusted.amount;
-            /* 为了精度 deviation放大100倍 */
+            /* For precision, amplify 'deviation' by 100 times */
             if (deviation > 3000) {
                 deviation = 10000;
             }
-            //  仅在 >10%情况下惩罚
+            //  Only penalize in case of >10% deviation
             if (deviation > 1000) {
                 uint256 penaltyCost = _penalty(
                     uploaded.account,

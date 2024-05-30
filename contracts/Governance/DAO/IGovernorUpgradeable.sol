@@ -190,12 +190,18 @@ abstract contract IGovernorUpgradeable is Initializable, IERC165Upgradeable {
         string memory description
     ) public payable virtual returns (uint256 proposalId);
 
+    /// @dev Move the successfully voted proposal (Succeeded) to the pending execution queue
+    /// @param targets Target contract address
+    /// @param calldatas contract call data
+    /// @param descriptionHash hash of the description information
+    /// @return uint256 proposal id
     function queue(
         address[] memory targets,
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) public virtual returns (uint256);
 
+    /* Non-execution type, only manual processing is required, mark as completed once executed */
     function manualExecuted(
         uint256 proposalId
     ) public virtual returns (uint256);
@@ -206,7 +212,7 @@ abstract contract IGovernorUpgradeable is Initializable, IERC165Upgradeable {
      *
      * Emits a {ProposalExecuted} event.
      *
-     * Note: some module can modify the requirements for execution, for example by adding an additional timelock.
+     * Note: some module can modify the requirements for execution, for example by adding an additional timelock
      */
     function execute(
         address[] memory targets,

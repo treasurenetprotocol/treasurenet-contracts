@@ -6,7 +6,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 
-/// @title 平台配置信息管理合约
+/// @title Platform configuration information management contract
 /// @author bjwswang
 contract ParameterInfo is Context, Initializable, OwnableUpgradeable, IParameterInfo {
     // OIL/GAS required
@@ -18,8 +18,8 @@ contract ParameterInfo is Context, Initializable, OwnableUpgradeable, IParameter
 
     address private _mulSig;
 
-    /// @dev 合约初始化
-    /// @param _mulSigContract 多签合约地址
+    /// @dev Contract initialization
+    /// @param _mulSigContract Multi-signature contract address
     function initialize(address _mulSigContract) public initializer {
         __Ownable_init();
 
@@ -37,10 +37,6 @@ contract ParameterInfo is Context, Initializable, OwnableUpgradeable, IParameter
         _priceDiscountConfig.sulphur = 500;
         _priceDiscountConfig.discount = [9000, 8500, 8000, 7500];
     }
-
-    /*function _contextSuffixLength() internal view virtual override(Context,ContextUpgradeable) returns (uint256) {
-        return ContextUpgradeable._contextSuffixLength();
-    }*/
 
     modifier onlyMulSig() {
         require(_msgSender() == _mulSig, "");
@@ -67,15 +63,15 @@ contract ParameterInfo is Context, Initializable, OwnableUpgradeable, IParameter
         return msg.data;
     }
 
-    /// @dev 设置平台参数
-    /// @param key 参数名称
+    /// @dev Set platform parameters
+    /// @param key Parameter name
     ///    - marginRatio
     ///    - reserveRatio
     ///    - loanInterestRate
     ///    - loanPledgeRate
     ///    - liquidationRatio
-    /// @param amount 参数值
-    /// @return bool 是否设置成功
+    /// @param amount Parameter value
+    /// @return bool Whether the setting was successful
     function setPlatformConfig(string memory key, uint256 amount)
     external override
     onlyMulSig
@@ -103,9 +99,9 @@ contract ParameterInfo is Context, Initializable, OwnableUpgradeable, IParameter
         return true;
     }
 
-    /// @dev 查询平台参数
-    /// @param key 参数名称
-    /// @return uint256  参数当前值
+    /// @dev Get platform parameters
+    /// @param key Parameter name
+    /// @return uint256 Current value of the parameter
     function getPlatformConfig(string memory key) public view override returns (uint256) {
         return _platformConfig[key];
     }
@@ -119,7 +115,7 @@ contract ParameterInfo is Context, Initializable, OwnableUpgradeable, IParameter
         return _platformConfig["loanPledgeRate"] * liquidationRatio / 10000;
     }
 
-    // 补两个用于前端查询比例的接口
+    // Additional interfaces for querying ratios for frontend
     function getUSTNLoanPledgeRate() public view returns (uint256){
         return _platformConfig["loanPledgeRate"];
     }
@@ -127,14 +123,14 @@ contract ParameterInfo is Context, Initializable, OwnableUpgradeable, IParameter
         return _platformConfig["loanInterestRate"];
     }
 
-    /// @dev 设置资产折扣配置信息
-    /// @param API API值
-    /// @param sulphur  酸度
-    /// @param discount1 折扣参数1
-    /// @param discount2 折扣参数2
-    /// @param discount3 折扣参数3
-    /// @param discount4 折扣参数4
-    /// @return bool 是否设置成功
+    /// @dev Set asset discount configuration information
+    /// @param API API value
+    /// @param sulphur acidity
+    /// @param discount1 Discount parameter 1
+    /// @param discount2 Discount parameter 2
+    /// @param discount3 Discount parameter 3
+    /// @param discount4 Discount parameter 4
+    /// @return bool Whether the setting was successful
     function setPriceDiscountConfig(
         uint256 API,
         uint256 sulphur,
@@ -157,10 +153,10 @@ contract ParameterInfo is Context, Initializable, OwnableUpgradeable, IParameter
         return true;
     }
 
-    /// @dev 查询折扣信息
-    /// @param _API API值
-    /// @param _sulphur  酸度
-    /// @return uint256 折扣参数
+    /// @dev Query discount information
+    /// @param _API API value
+    /// @param _sulphur Acidity
+    /// @return uint256 Discount parameter
     function getPriceDiscountConfig(uint256 _API, uint256 _sulphur) public view override returns (uint256) {
         uint256 discount;
         require(_API != 0 && _sulphur != 0, "this mine data is error or not exist this mine.");

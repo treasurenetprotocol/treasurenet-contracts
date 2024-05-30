@@ -12,7 +12,7 @@ import "./IParameterInfo.sol";
 import "./IRoles.sol";
 import "../Treasure/interfaces/IProducer.sol";
 
-/// @title 多签合约
+/// @title Multisig contract
 /// @author bjwswang
 contract MulSig is Initializable, OwnableUpgradeable {
     bytes32 public constant FOUNDATION_MANAGER = keccak256("FOUNDATION_MANAGER");
@@ -28,19 +28,19 @@ contract MulSig is Initializable, OwnableUpgradeable {
     IParameterInfo private _parameterInfo;
     IRoles private _roles;
 
-    // 提议：
-    // - 管理manager
-    // - 管理用户组
-    // - 管理platform config
-    // - 管理discount config
-    // - 管理矿物类型
+    // Proposals:
+    // - Manage manager
+    // - Manage user groups
+    // - Manage platform config
+    // - Manage discount config
+    // - Manage mineral types
     struct proposal {
         address proposer;
         string name;
         address _add;
         uint256 value;
         IParameterInfo.PriceDiscountConfig data;
-        uint256 _type; // 1: adminPermission 2: addResource  3: dataConfig 4: discountConfig 5: registerDApp
+        uint256 _type; // 1: adminPermission 2: addResource 3: dataConfig 4: discountConfig 5: registerDApp
         uint8 signatureCount;
         uint256 excuteTime;
         address producer;
@@ -51,11 +51,11 @@ contract MulSig is Initializable, OwnableUpgradeable {
         address payee;
     }
 
-    /// @dev 用于MulSig合约的初始化
-    /// @param _daoContract DAO合约地址
-    /// @param _governanceContract 治理合约地址
-    /// @param _roleContract 角色管理合约地址
-    /// @param _parameterInfoContract 参数管理合约地址
+    /// @dev Used for the initialization of the Mulsig contract
+    /// @param _daoContract DAO contract address
+    /// @param _governanceContract Governance contract address
+    /// @param _roleContract Role management contract address
+    /// @param _parameterInfoContract Parameter management contract address
     function initialize(
         address _daoContract,
         address _governanceContract,
@@ -85,17 +85,17 @@ contract MulSig is Initializable, OwnableUpgradeable {
 
 
     event ManagePermission(uint256 proposalId, address proposer, string name, address _add);
-    /// @dev 发起新的提议，为某用户添加/注销角色权限
-    ///  - 仅允许FoundationManager发起
-    ///  - Event:
-    ///  -   `event ManagePermission(address proposer, string name, address _add, uint256 proposalId);`
-    /// @param _name: 操作类型,包括:
-    ///   - FMD: 注销FoundationManager权限
-    ///   - FMA: 添加FoundationManager权限
-    ///   - FEEDERD: 添加FEEDER权限
-    ///   - FEEDERA：注销FEEDER权限
-    /// @param _account 账户地址
-    /// @return bool 是否成功发起proposal
+    /// @dev Initiates a new proposal to add or revoke role permissions for a certain user
+    /// - Only allowed to be initiated by FoundationManager
+    /// - Event:
+    /// - event ManagePermission(address proposer, string name, address _add, uint256 proposalId);
+    /// @param _name: Operation type, including:
+    /// - FMD: Revoke FoundationManager permission
+    /// - FMA: Add FoundationManager permission
+    /// - FEEDERD: Add FEEDER permission
+    /// - FEEDERA: Revoke FEEDER permission
+    /// @param _account Account address
+    /// @return bool Whether the proposal is successfully initiated
     function proposeToManagePermission(string memory _name, address _account) public onlyFoundationManager returns (bool) {
         require(address(0) != _account, "MulSig:zero address");
         uint256 proposalID = proposalIDx++;
@@ -113,13 +113,13 @@ contract MulSig is Initializable, OwnableUpgradeable {
     }
 
     event AddResource(uint256 proposalId, address proposer, string name, address producerContract, address productionContract);
-    /// @dev 用于添加新的Treasure资产
-    ///  - Event:
-    ///     - event AddResource(address proposer, string name, address producerContract,address productionContract);
-    /// @param _name  资产名称
-    /// @param _producer 生产商管理合约
-    /// @param _productionData 生产数据管理合约
-    /// @return bool 是否成功发起proposal
+    /// @dev Used to add a new Treasure asset
+    /// - Event:
+    /// - event AddResource(address proposer, string name, address producerContract,address productionContract);
+    /// @param _name Asset name
+    /// @param _producer Producer management contract
+    /// @param _productionData Production data management contract
+    /// @return bool Whether the proposal is successfully initiated
     function proposeToAddResource(
         string memory _name,
         address _producer,
@@ -175,12 +175,12 @@ contract MulSig is Initializable, OwnableUpgradeable {
 
 
     event SetPlatformConfig(uint256 proposalId, address proposer, string name, uint256 _value);
-    /// @dev 用于发起修改平台配置信息(parameterInfo)
-    ///  - Event
-    ///     -  event SetPlatformConfig(address proposer, string name, uint256 _value);
-    /// @param _name  配置信息key
-    /// @param _value 配置信息值
-    /// @return bool 是否成功发起proposal
+    /// @dev Used to initiate the modification of the platform configuration information (parameterInfo)
+    /// - Event
+    /// - event SetPlatformConfig(address proposer, string name, uint256 _value);
+    /// @param _name The key of the configuration information
+    /// @param _value The value of the configuration information
+    /// @return bool Whether the proposal is successfully initiated
     function proposeToSetPlatformConfig(string memory _name, uint256 _value) public onlyFoundationManager returns (bool) {
         uint256 proposalID = proposalIDx++;
         proposal storage kk = proposals[proposalID];
@@ -197,21 +197,21 @@ contract MulSig is Initializable, OwnableUpgradeable {
     }
 
     event SetDiscountConfig(uint256 proposalId, address proposer, IParameterInfo.PriceDiscountConfig config);
-    /// @dev 用于发起修改资产的折扣信息(parameterInfo.DiscountConfig)
+    /// @dev Used to initiate the modification of the discount information of the asset (parameterInfo.DiscountConfig)
     ///  - Event
     ///     - event SetDiscountConfig(address proposer,IParameterInfo.PriceDiscountConfig config);
     ///       struct PriceDiscountConfig {
     ///         uint256 API;
     ///         uint256 sulphur;
     ///         uint256[4] discount;
-    ///       }
-    /// @param b1  API数据
-    /// @param b2  sulphur酸度数据
-    /// @param b3  discount[0]
-    /// @param b4  discount[1]
-    /// @param b5  discount[2]
-    /// @param b6  discount[3]
-    /// @return bool 是否成功发起proposal
+    ///       }         
+    /// @param b1 API data
+    /// @param b2 sulphur acidity data
+    /// @param b3 discount[0]
+    /// @param b4 discount[1]
+    /// @param b5 discount[2]
+    /// @param b6 discount[3]
+    /// @return bool Whether the proposal is successfully initiated
     function proposeToSetDiscountConfig(
         uint256 b1,
         uint256 b2,
@@ -238,29 +238,29 @@ contract MulSig is Initializable, OwnableUpgradeable {
         return true;
     }
 
-    /// @dev 用于获取pending状态的proposal列表
-    /// @return uint256[] proposal id列表
+    /// @dev Used to obtain the list of proposals in the pending state
+    /// @return uint256[] List of proposal id
     function getPendingProposals() public view onlyFoundationManager returns (uint256[] memory) {
         return pendingProposals;
     }
 
     event ProposalSigned(uint256 proposalId, address signer);
-    /// @dev 由FoundationManager签发交易，同意某proposal
-    /// @param _proposalId 提议对应的ID
-    /// @return bool 请求是否成功
+    /// @dev Issued by the FoundationManager to sign a transaction and approve a certain proposal
+    /// @param _proposalId The ID of the corresponding proposal
+    /// @return bool Whether the request was successful
     function signTransaction(uint256 _proposalId) public onlyFoundationManager returns (bool) {
         proposal storage pro = proposals[_proposalId];
-        // 未满足 多签阈值要求
+        // Not meeting the multi-signature threshold requirement
         require(pro.signatureCount < _governance.fmThreshold(), "limit");
-        // 当前signature发送者未发送过
+        // The current signature sender has not sent before
         require(pro.signatures[msg.sender] != 1, "already signed");
-        // 设置为已签名
+        // Set as signed
         pro.signatures[msg.sender] = 1;
         pro.signatureCount++;
 
-        // 满足阈值，设置执行时间(生效时间)
+        // If the threshold is met, set the execution time (effective time)
         if (pro.signatureCount >= _governance.fmThreshold()) {
-            // 区块创建时间的两小时后
+            // Two hours after the block creation time
             pro.excuteTime = block.timestamp + confirmDuration;
         }
         emit ProposalSigned(_proposalId, msg.sender);
@@ -269,50 +269,57 @@ contract MulSig is Initializable, OwnableUpgradeable {
     }
 
     event ProposalExecuted(uint256 proposalId);
-    /// @dev 由FoundationManager执行某个proposal(已经完成投票的Id）
-    /// @param _proposalId 提议对应的ID
-    /// @return bool 请求是否成功
-    function excuteProposal(uint256 _proposalId) public onlyFoundationManager returns (bool) {
-        proposal storage pro = proposals[_proposalId];
-        require(pro.excuteTime <= block.timestamp, "executeTime not meet");
+/// @dev Executed by the FoundationManager for a specific proposal (with completed voting)
+/// @param _proposalId The ID of the corresponding proposal
+/// @return bool Whether the request was successful
+function executeProposal(uint256 _proposalId) public onlyFoundationManager returns (bool) {
+    proposal storage pro = proposals[_proposalId];
+    // Ensure the execution time has been reached
+    require(pro.excuteTime <= block.timestamp, "executeTime not meet");
 
-        if (pro._type == 1) {
-            if (keccak256(bytes(pro.name)) == keccak256(bytes("FMD"))) {
-                _roles.revokeRole(FOUNDATION_MANAGER, pro._add);
-            } else if (keccak256(bytes(pro.name)) == keccak256(bytes("FMA"))) {
-                _roles.grantRole(FOUNDATION_MANAGER, pro._add);
-            }
-            if (keccak256(bytes(pro.name)) == keccak256(bytes("FEEDERD"))) {
-                _roles.revokeRole(FEEDER, pro._add);
-            } else if (keccak256(bytes(pro.name)) == keccak256(bytes("FEEDERA"))) {
-                _roles.grantRole(FEEDER, pro._add);
-            }
-        } else if (pro._type == 2) {
-            // treasure management
-            _governance.addTreasure(pro.name, pro.producer, pro.productionData);
-        } else if (pro._type == 3) {
-            _parameterInfo.setPlatformConfig(pro.name, pro.value);
-        } else if (pro._type == 4) {
-            _parameterInfo.setPriceDiscountConfig(
-                pro.data.API,
-                pro.data.sulphur,
-                pro.data.discount[0],
-                pro.data.discount[1],
-                pro.data.discount[2],
-                pro.data.discount[3]
-            );
-        } else if (pro._type == 5) {
-            (address producerAddr,) = _governance.getTreasureByKind(pro.treasureKind);
-            require(producerAddr != address(0), "treasure not found with proposal's treasure kind");
-            IProducer _producer = IProducer(producerAddr);
-            _producer.registerDAppConnect(pro.name, pro.payee);
+    if (pro._type == 1) {
+        // Role management: grant or revoke Foundation Manager role
+        if (keccak256(bytes(pro.name)) == keccak256(bytes("FMD"))) {
+            _roles.revokeRole(FOUNDATION_MANAGER, pro._add);
+        } else if (keccak256(bytes(pro.name)) == keccak256(bytes("FMA"))) {
+            _roles.grantRole(FOUNDATION_MANAGER, pro._add);
         }
-        deleteProposals(_proposalId);
-
-        emit ProposalExecuted(_proposalId);
-
-        return true;
+        // Role management: grant or revoke Feeder role
+        if (keccak256(bytes(pro.name)) == keccak256(bytes("FEEDERD"))) {
+            _roles.revokeRole(FEEDER, pro._add);
+        } else if (keccak256(bytes(pro.name)) == keccak256(bytes("FEEDERA"))) {
+            _roles.grantRole(FEEDER, pro._add);
+        }
+    } else if (pro._type == 2) {
+        // Treasury management: add a new treasure
+        _governance.addTreasure(pro.name, pro.producer, pro.productionData);
+    } else if (pro._type == 3) {
+        // Update platform configuration parameters
+        _parameterInfo.setPlatformConfig(pro.name, pro.value);
+    } else if (pro._type == 4) {
+        // Update price discount configuration
+        _parameterInfo.setPriceDiscountConfig(
+            pro.data.API,
+            pro.data.sulphur,
+            pro.data.discount[0],
+            pro.data.discount[1],
+            pro.data.discount[2],
+            pro.data.discount[3]
+        );
+    } else if (pro._type == 5) {
+        // Register DApp connection for a producer
+        (address producerAddr,) = _governance.getTreasureByKind(pro.treasureKind);
+        require(producerAddr != address(0), "treasure not found with proposal's treasure kind");
+        IProducer _producer = IProducer(producerAddr);
+        _producer.registerDAppConnect(pro.name, pro.payee);
     }
+    // Remove the executed proposal from storage
+    deleteProposals(_proposalId);
+
+    emit ProposalExecuted(_proposalId);
+
+    return true;
+}
 
     struct ProposalResponse {
         string name;
@@ -327,11 +334,11 @@ contract MulSig is Initializable, OwnableUpgradeable {
     }
 
     /**
-      * 根据提案ID获取提案的详细信息。
-      *
-      * @param _proposalId 拟案的唯一标识符。
-     * @return 返回一个ProposalResponse结构体，包含提案的不同类型的信息。
-     */
+    * Get detailed information about a proposal based on its ID.
+    *
+    * @param _proposalId The unique identifier of the proposal.
+    * @return Returns a ProposalResponse struct containing different types of information about the proposal.
+    */
     function transactionDetails(uint256 _proposalId)
     public
     view
@@ -361,8 +368,8 @@ contract MulSig is Initializable, OwnableUpgradeable {
         return pr;
     }
 
-    /// @dev 删除proposal
-    /// @param _proposalId 提议对应的ID
+    /// @dev Delete a proposal
+    /// @param _proposalId The ID of the proposal to be deleted
     function deleteProposals(uint256 _proposalId) public onlyFoundationManager {
         uint8 replace = 0;
         for (uint256 i = 0; i < pendingProposals.length; i++) {

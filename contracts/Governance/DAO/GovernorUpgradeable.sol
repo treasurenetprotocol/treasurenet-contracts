@@ -153,8 +153,8 @@ abstract contract GovernorUpgradeable is
             uint256(keccak256(abi.encode(targets, calldatas, descriptionHash)));
     }
 
-    /// @dev 查询proposal的当前状态
-    /// @param proposalId 提议的ID
+    /// @dev Query the current status of the proposal
+    /// @param proposalId proposal ID
     /// @return ProposalState
     /// enum ProposalState {
     ///     Pending,
@@ -217,18 +217,18 @@ abstract contract GovernorUpgradeable is
         }
     }
 
-    /// @dev 查询proposal投票的开始时间
-    /// @param proposalId 提议的ID
-    /// @return uint256 开始时间(block number)
+    /// @dev Query the start time of the proposal vote
+    /// @param proposalId proposal ID
+    /// @return uint256 start time(block number)
     function proposalSnapshot(
         uint256 proposalId
     ) public view virtual override returns (uint256) {
         return _proposals[proposalId].voteStart.getDeadline();
     }
 
-    /// @dev 查询proposal投票的截止时间(block number)
-    /// @param proposalId 提议的ID
-    /// @return uint256 截止时间(block number)
+    /// @dev Query the deadline for the proposal vote(block number)
+    /// @param proposalId proposal ID
+    /// @return uint256 deadline(block number)
     function proposalDeadline(
         uint256 proposalId
     ) public view virtual override returns (uint256) {
@@ -268,10 +268,10 @@ abstract contract GovernorUpgradeable is
         uint256 weight
     ) internal virtual;
 
-    /// @dev 发起一个新的提议
-    /// @param targets 目标合约地址
-    /// @param calldatas 合约调用数据
-    /// @param description 描述信息
+    /// @dev Initiate a new proposal
+    /// @param targets Target contract address
+    /// @param calldatas Contract call data
+    /// @param description Description information
     /// @return uint256 proposal id
     function propose(
         address[] memory targets,
@@ -288,12 +288,12 @@ abstract contract GovernorUpgradeable is
             targets.length == calldatas.length,
             "Governor: invalid proposal length"
         );
-        //require(targets.length > 0, "Governor: empty proposal");  //有手动执行的版本
+        //require(targets.length > 0, "Governor: empty proposal");  //There is a manually executable version
 
         if (targets.length == 0) {
-            //手动执行的版本
+            //manually executable version
             require(msg.value >= 1 * 1e18, "Minimum 1UNIT");
-            //要收费
+            //There is a fee
         }
 
         ProposalCore storage proposal = _proposals[proposalId];
@@ -304,9 +304,9 @@ abstract contract GovernorUpgradeable is
 
         uint64 snapshot = 0;
         if (targets.length == 0) {
-            //手动执行的版本
+            //manually executable version
             snapshot = block.number.toUint64() - 1;
-            //手动执行的版本不存在投票延迟
+            //There is no voting delay in the manually executable version
         } else {
             snapshot = block.number.toUint64() + votingDelay().toUint64();
         }
@@ -315,10 +315,10 @@ abstract contract GovernorUpgradeable is
         proposal.voteStart.setDeadline(snapshot);
         proposal.voteEnd.setDeadline(deadline);
 
-        //payable(address(this)).transfer(msg.value);  //收费
+        //payable(address(this)).transfer(msg.value);  //is a fee
 
         if (targets.length == 0) {
-            //手动执行的版本 此处附加一次投票动作
+            //In the manually executable version, an additional voting action is attached here
 
             address voter = _msgSender();
 
@@ -345,10 +345,10 @@ abstract contract GovernorUpgradeable is
         return proposalId;
     }
 
-    /// @dev 将投票成功的proposal(Succeeded)转移到待执行队列
-    /// @param targets 目标合约地址
-    /// @param calldatas 合约调用数据
-    /// @param descriptionHash 描述信息的哈希值
+    /// @dev Move the successfully voted proposal (Succeeded) to the pending execution queue
+    /// @param targets Target contract address
+    /// @param calldatas contract call data
+    /// @param descriptionHash hash of the description information
     /// @return uint256 proposal id
     function queue(
         address[] memory targets,
@@ -371,7 +371,7 @@ abstract contract GovernorUpgradeable is
         return proposalId;
     }
 
-    /* 非执行类 只需要手动处理 标识完成执行即可 */
+    /* Non-execution type, only manual processing is required, mark as completed once executed */
     function manualExecuted(
         uint256 proposalId
     ) public virtual override returns (uint256) {
@@ -393,10 +393,10 @@ abstract contract GovernorUpgradeable is
         return proposalId;
     }
 
-    /// @dev 执行已经在待执行队列的proposal(Queued)
-    /// @param targets 目标合约地址
-    /// @param calldatas 合约调用数据
-    /// @param descriptionHash 描述信息的哈希值
+    /// @dev Execute the proposal that is already in the queued for execution
+    /// @param targets Target contract address
+    /// @param calldatas Contract call data
+    /// @param descriptionHash Hash of the description information
     /// @return uint256 proposal id
     function execute(
         address[] memory targets,
@@ -502,15 +502,15 @@ abstract contract GovernorUpgradeable is
         return proposalId;
     }
 
-    /// @dev 发起投票(投票会质押一定的Token)
-    /// @param proposalId 提议id
-    /// @param support 是否支持该提议
+    /// @dev Initiate a vote (voting will stake a certain amount of tokens)
+    /// @param proposalId proposal id
+    /// @param support Do you support this proposal
     ///     enum VoteType {
-    ///         Against, // 反对
-    ///         For,   // 同意
-    ///         Abstain  // 弃权
+    ///         Against, // against
+    ///         For,   // agree
+    ///         Abstain  // abstain
     ///     }
-    /// @return uint256 返回weight
+    /// @return uint256 return weight
     function castVote(
         uint256 proposalId,
         uint8 support
@@ -574,9 +574,9 @@ abstract contract GovernorUpgradeable is
         return address(this);
     }
 
-    /// @dev 提议结束后，投票者可提回其token
-    /// @param proposalId 提议id
-    /// @return uint256 返回得token数量
+    /// @dev After the proposal ends, voters can withdraw their tokens
+    /// @param proposalId proposal id
+    /// @return uint256 Number of tokens returned
     function withdraw(
         uint256 proposalId
     ) public payable virtual override returns (uint256) {

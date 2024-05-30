@@ -18,6 +18,15 @@ contract BtcData is ProductionData {
         string miner
     );
 
+    /**
+     * @dev Initialize the contract with required parameters.
+     * @param _treasureKind The type of treasure this contract handles.
+     * @param _oracleContract Address of the oracle contract.
+     * @param _rolesContract Address of the roles contract.
+     * @param _parameterInfoContract Address of the parameter info contract.
+     * @param _producerContract Address of the producer contract.
+     * @param _tatContract Address of the TAT contract.
+     */
     function initialize(
         string memory _treasureKind,
         address _oracleContract,
@@ -36,6 +45,12 @@ contract BtcData is ProductionData {
         );
     }
 
+    /**
+     * @dev Receive trusted production data from a feeder.
+     * @param _requestId The request ID associated with the data.
+     * @param _uniqueId The unique ID of the production data.
+     * @param _produceData The production data received.
+     */
     function receiveTrustedProductionData(
         bytes32 _requestId,
         bytes32 _uniqueId,
@@ -116,11 +131,22 @@ contract BtcData is ProductionData {
         return true;
     }
 
+    /**
+     * @dev Logic to execute after successful clearing.
+     * @param _uniqueId The unique ID of the production data.
+     * @param blockNumber The block number associated with the production data.
+     */
     function _afterClearing(
         bytes32 _uniqueId,
         uint256 blockNumber
     ) internal override {}
 
+    /**
+     * @dev Calculate rewards for stakeholders based on their shares.
+     * @param uniqueId The unique ID of the production data.
+     * @param total The total amount of tokens produced.
+     * @return The total reward distributed.
+     */
     function _rewardByShare(
         bytes32 uniqueId,
         uint256 total

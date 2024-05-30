@@ -7,9 +7,9 @@ import "../Governance/IRoles.sol";
 import "./IOracle.sol";
 
 /**
- * @dev Oracle为核心的预言机合约，实现了
- *    - 发起/取消Oracle请求
- *    - 上传Oracle数据(Role.Feeder)
+ * @dev Oracle contract serves as the core oracle system, implementing functionalities such as:
+ *    - Initiating/Canceling Oracle requests
+ *    - Uploading Oracle data (Role: Feeder)
 */
 contract Oracle is Initializable, OwnableUpgradeable, IOracle {
     bytes32 public constant FEEDER = keccak256("FEEDER");
@@ -30,8 +30,8 @@ contract Oracle is Initializable, OwnableUpgradeable, IOracle {
     // requestid -> commitment id
     mapping(bytes32 => bytes32) private _commitments;
 
-    /// @dev 合约初始化
-    /// @param _roleContract 角色管理合约
+    /// @dev Contract initialization
+    /// @param _roleContract Address of the role management contract
     function initialize(address _roleContract) public initializer {
         __Ownable_init();
         _roleController = IRoles(_roleContract);
@@ -42,8 +42,8 @@ contract Oracle is Initializable, OwnableUpgradeable, IOracle {
         _;
     }
 
-    /// @dev 发起预言机请求
-    ///  - Event
+    /// @dev Initiates an Oracle request
+    ///  - Emits an event:
     ///  ``` 
     ///  event OracleRequest(
     ///     address requester,
@@ -52,10 +52,10 @@ contract Oracle is Initializable, OwnableUpgradeable, IOracle {
     ///     bytes4 callbackFunctionId
     // ); 
     /// ```
-    /// @param _callbackAddress 回调合约地址
-    /// @param _callbackFunctionId 回调合约方法
-    /// @param _nonce nonce值
-    /// @return bytes32 请求的request id
+    /// @param _callbackAddress Address of the callback contract
+    /// @param _callbackFunctionId Selector of the callback function
+    /// @param _nonce Nonce value
+    /// @return bytes32 The request ID
     function createOracleRequest(
         address _callbackAddress,
         bytes4 _callbackFunctionId,
@@ -72,8 +72,8 @@ contract Oracle is Initializable, OwnableUpgradeable, IOracle {
         return requestId;
     }
 
-    /// @dev 取消预言机请求
-    ///  - Event
+    /// @dev Cancels an Oracle request
+    ///  - Emits an event:
     ///  ``` 
     ///  event CancelOracleRequest(
     ///     address requester,
@@ -82,10 +82,10 @@ contract Oracle is Initializable, OwnableUpgradeable, IOracle {
     ///     bytes4 callbackFunctionId
     // ); 
     /// ```
-    /// @param _requestId 请求 id
-    /// @param _callbackAddress 回调合约地址
-    /// @param _callbackFuncId 回调合约方法
-    /// @return bytes32 请求的request id
+    /// @param _requestId The request ID
+    /// @param _callbackAddress Address of the callback contract
+    /// @param _callbackFuncId Selector of the callback function
+    /// @return bytes32 The request ID
     function cancelOracleRequest(
         bytes32 _requestId,
         address _callbackAddress,

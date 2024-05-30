@@ -8,6 +8,12 @@ interface IParameterInfo {
         uint256[4] discount;
     }
 
+    /**
+     * @dev Sets a platform configuration parameter
+     * @param key The key of the configuration parameter
+     * @param amount The value to set for the configuration parameter
+     * @return A boolean indicating whether the operation was successful
+     */
     function setPlatformConfig(string memory key, uint256 amount) external returns (bool);
 
     function getPlatformConfig(string memory key) external view returns (uint256);
