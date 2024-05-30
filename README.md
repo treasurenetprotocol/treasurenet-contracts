@@ -111,8 +111,8 @@ For questions or collaboration, please contact:
 
 - **Name:** Treasurenet team
 - **Email:** contact@treasurenet.org
-- **Twitter: **https://twitter.com/treasurenet_io
-- **Telegram: **https://t.me/+hN6G5mGAlD8xMmI5
+- **Twitter:** https://twitter.com/treasurenet_io
+- **Telegram:** https://t.me/+hN6G5mGAlD8xMmI5
 - **GitHub:** https://github.com/treasurenetprotocol/treasurenet-contracts
 
 -----
