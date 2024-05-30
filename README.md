@@ -16,18 +16,17 @@ Treasurenet proposes a solution for the critical lack of sustaining and tangible
 This contains almost all contracts officially developed and maintained by Treasurenet Foundation.
 
 - [Installation](#installation)
-- [Usage](#usage)
+- [Usage](#Usage)
 - [Contributing](#contributing)
 - [Code of Conduct](#code-of-conduct)
 - [License](#license)
-- [Tests](#tests)
 - [FAQ](#faq)
 - [Acknowledgements](#acknowledgements)
 - [Contact Information](#contact-information)
 
 ## Installation
 
-To install and set up the AirDrop smart contract for development, follow these steps:
+To install and set up the project contract for development, follow these steps:
 
 ```bash
 # Clone the repository
@@ -40,7 +39,7 @@ cd treasurenetprotocol
 npm install
 ```
 
-## Usage and Example
+## Usage
 
 To run the tests for this project,use the following command:
 
@@ -60,7 +59,7 @@ Make sure all tests pass before submitting a pull request.
 
 ## Introduction and APIs
 
-[module documentation](
+[module documentation](https://github.com/treasurenetprotocol/treasurenet-contracts/tree/main/docs)
 
 ## Contributing
 
@@ -111,7 +110,9 @@ We would like to thank the developers and contributors of OpenZeppelin for their
 For questions or collaboration, please contact:
 
 - **Name:** Treasurenet team
-- **Email:** 
+- **Email:** contact@treasurenet.org
+- **Twitter: **https://twitter.com/treasurenet_io
+- **Telegram: **https://t.me/+hN6G5mGAlD8xMmI5
 - **GitHub:** https://github.com/treasurenetprotocol/treasurenet-contracts
 
 -----
