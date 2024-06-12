@@ -11,6 +11,7 @@ The TAT contract is the TreasureNet ERC20 token implementation, featuring mintab
 - [License](#license)
 - [Tests](#tests)
 - [FAQ](#faq)
+- [Other contract API details](#Other contract API details)
 
 ## Installation
 
@@ -447,3 +448,12 @@ Make sure all tests pass before submitting a pull request.
 
 Staking allows users to lock their TAT tokens in the contract in exchange for rewards or other benefits within the TreasureNet ecosystem.
 
+## Other contract API details
+
+[IStake](D:\work\Treasurenet-contracts\fork\treasurenet-contracts\docs\tat\IStake\README.md)
+
+[ITAT](D:\work\Treasurenet-contracts\fork\treasurenet-contracts\docs\tat\ITAT\README.md)
+
+[stakeable](D:\work\Treasurenet-contracts\fork\treasurenet-contracts\docs\tat\stakeable\README.md)
+
+[TAT](D:\work\Treasurenet-contracts\fork\treasurenet-contracts\docs\tat\TAT\README.md)
