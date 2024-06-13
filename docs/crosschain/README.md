@@ -15,6 +15,7 @@ Usage example:
 - [Workflow](#Workflow)
 - [Definitions](#Definitions)
 - [Security Concerns](#Security Concerns)
+- [Other contract API details](#Other contract API details)
 
 ## Workflow
 
@@ -121,3 +122,9 @@ cases of stake shifting, the _MultiSig Set_ and _Validator Set_ could get quite 
 Thus, to avoid censorship attacks/inactivity, we should also update this everytime there is a significant change in the Validator Set (eg. > 3-5%). If we maintain those two conditions, the MultiSig Set should offer a similar level of security as the Validator Set.
 
 Slashing is documented in the [slashing spec](/spec/slashing-spec.md).
+
+## Other contract API details
+
+[cosmosToken](D:\work\Treasurenet-contracts\fork\treasurenet-contracts\docs\crosschain\cosmosToken\README.md)
+
+[gravity](D:\work\Treasurenet-contracts\fork\treasurenet-contracts\docs\crosschain\gravity\README.md)
