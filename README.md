@@ -17,7 +17,7 @@ This contains almost all contracts officially developed and maintained by Treasu
 
 - [Installation](#installation)
 - [Usage](#Usage)
-- [Introduction and APIs](#Introduction and APIs)
+- [Introduction and APIs](#introduction-and-apis)
 - [Contributing](#contributing)
 - [Code of Conduct](#code-of-conduct)
 - [License](#license)
